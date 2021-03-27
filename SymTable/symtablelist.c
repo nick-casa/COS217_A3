@@ -80,7 +80,6 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
 
-   psNewNode = oSymTable->psFirstNode;
    
    pcKeyCopy = (char*)malloc(strlen(pcKey));
    if (!pcKeyCopy)
@@ -92,10 +91,10 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
     free(pcKeyCopy);
     return 0;
    }
-
    pcInsNode->pcKey = pcKeyCopy;
    pcInsNode->pvValue = pvValue;
 
+   psNewNode = oSymTable->psFirstNode;
    if(!psNewNode){
      oSymTable->psFirstNode = pcInsNode;
      oSymTable->iBindings++;
@@ -255,46 +254,33 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
 }
 /*
 int main(void){
-    int i;
-    size_t uLength;
-    void *pvOldValue;
-    char* ss;
+     SymTable_T oSymTable;
+   char acJeter[] = "Jeter";
+   char acMantle[] = "Mantle";
+   char acGehrig[] = "Gehrig";
+   char acRuth[] = "Ruth";
+   char acShortstop[] = "Shortstop";
+   char acCenterField[] = "Center Field";
+   char acFirstBase[] = "First Base";
+   char acRightField[] = "Right Field";
 
-    ss = "2B";
+   int iSuccessful;
 
-    SymTable_T oSymTable;
-    oSymTable = SymTable_new();
-    
-    i = SymTable_put(oSymTable, "Ruth", "RF");
-    i = SymTable_put(oSymTable, "Gehrig", "1B");
-    i = SymTable_put(oSymTable, "Mantle", "CF");
-    i = SymTable_put(oSymTable, "Jeter", ss);
-    
-    uLength = SymTable_getLength(oSymTable);
-    pvOldValue = SymTable_get(oSymTable, "Mantle");
-    pvOldValue = SymTable_replace(oSymTable, "Mantle", "1B");
-    i = SymTable_contains(oSymTable, "Jeter");
-    
-    ss = "LF";
+   printf("------------------------------------------------------\n");
+   printf("Testing the SymTable_map() function.\n");
+   fflush(stdout);
 
-    pvOldValue = SymTable_get(oSymTable, "Jeter");
-    printf("ss: %s SymTable_get: %s\n",ss,pvOldValue);
-  
-    pvOldValue = SymTable_remove(oSymTable, "Jeter"); 
-    printf("ss: %s SymTable_remove: %s\n",ss,pvOldValue);
-    
-    printf("true: %i\n",pvOldValue==ss);
-    
-    i = SymTable_contains(oSymTable, "Gehrig");
-    printf("%i\n", i);
-    i = SymTable_contains(oSymTable, "Ruth");
-    printf("%i\n", i);
-    i = SymTable_contains(oSymTable, "Mantle");
-    printf("%i\n", i);
-    i = SymTable_contains(oSymTable, "Jeter");
-    printf("%i\n", i);
-    SymTable_free(oSymTable);
-        
+   oSymTable = SymTable_new();
+   
+   iSuccessful = SymTable_put(oSymTable, acJeter, acShortstop);
+   printf("%i\n", iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, acMantle, acCenterField);
+   printf("%i\n", iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, acGehrig, acFirstBase);
+   printf("%i\n", iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, acRuth, acRightField);
+   printf("%i\n", iSuccessful);
+   SymTable_free(oSymTable);
 }
 */
 

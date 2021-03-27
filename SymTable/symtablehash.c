@@ -3,9 +3,12 @@
 /* Author: Nickolas Casalinuovo                                       */
 /*--------------------------------------------------------------------*/
 
-#include "stack.h"
 #include <stdlib.h>
 #include <assert.h>
+
+#ifndef SYMTABLE_INCLUDED
+#include "symtable.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 
@@ -25,7 +28,8 @@ struct LinkedListNode{
 /*--------------------------------------------------------------------*/
 
 /* A SymTable is a structure that points to the first LinkedListNode. */
-struct Sy{
+struct SymTable{
+   
    /* The address of the first LinkedListNode. */
    struct LinkedListNode *psFirstNode;
 
@@ -76,7 +80,7 @@ static int Stack_grow(Stack_T oStack)
 
 SymTable_T SymTable_new(void);
 
-/*--------------------------------------------------------------------*/
+/*-------------------------------------------------------------------- 
 
 int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue);
 
@@ -95,3 +99,5 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey);
 void SymTable_map(SymTable_T oSymTable, 
     void (*pfApply)(const char *pcKey, void *pvValue, void *pvExtra), 
     const void *pvExtra);
+
+  --------------------------------------------------------------------*/
