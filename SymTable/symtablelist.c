@@ -7,32 +7,33 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifndef SYMTABLE_INCLUDED
 #include "symtable.h"
+#endif
 
 /*--------------------------------------------------------------------*/
 
-/* Each item is stored in a StackNode.  StackNodes are linked to
+/* Each item is stored in a LinkedListNode.  LinkedListNodes are linked to
    form a list.  */
 
-struct StackNode{
+struct LinkedListNode{
    /* The key. */
    char *pcKey;
-   /* The value. */
+   /* Pointer to the value. */
    const void *pvValue;
 
-   /* The address of the next StackNode. */
-   struct StackNode *psNextNode;
+   /* The address of the next LinkedListNode. */
+   struct LinkedListNode *psNextNode;
 };
 
 /*--------------------------------------------------------------------*/
 
-/* A Stack is a structure that points to the first StackNode. */
+/* A SymTable is a structure that points to the first LinkedListNode. */
+struct SymTable{
+   /* The address of the first LinkedListNode. */
+   struct LinkedListNode *psFirstNode;
 
-struct Stack{
-   /* The address of the first StackNode. */
-   struct StackNode *psFirstNode;
-
-   /* Amount of bindings in the stack */
+   /* Amount of bindings in the SymTable */
    size_t iBindings;
 };
 
@@ -40,7 +41,7 @@ struct Stack{
 
 SymTable_T SymTable_new(void){
    SymTable_T oSymTable;
-   oSymTable = (SymTable_T)malloc(sizeof(struct Stack));
+   oSymTable = (SymTable_T)malloc(sizeof(struct SymTable));
 
    if (oSymTable == NULL)
       return NULL;
@@ -50,27 +51,44 @@ SymTable_T SymTable_new(void){
    return oSymTable;
 }
 
+void SymTable_free(SymTable_T oSymTable){
+   struct LinkedListNode *psCurrentNode;
+   int iBindings,iIter;
+
+   assert(oSymTable != NULL);
+   for(iBindings = oSymTable->iBindings;
+      iBindings>0;
+      iBindings--){
+      psCurrentNode = oSymTable->psFirstNode;
+      for(iIter = 0; iIter<iBindings-1;iIter++){
+        psCurrentNode = psCurrentNode->psNextNode;
+      }
+      free((char*)psCurrentNode->pcKey);
+      free(psCurrentNode);
+   }
+   free(oSymTable);
+}
+
 size_t SymTable_getLength(SymTable_T oSymTable){
    return oSymTable->iBindings;
 }
 
 int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
-   struct StackNode *psNewNode, *pcInsNode;
+   struct LinkedListNode *psNewNode, *pcInsNode;
    char* pcKeyCopy;
    
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
-   assert(pvValue != NULL);
-   
+
    psNewNode = oSymTable->psFirstNode;
    
    pcKeyCopy = (char*)malloc(strlen(pcKey));
-   if (pcKeyCopy == NULL)
+   if (!pcKeyCopy)
     return 0;
    strcpy(pcKeyCopy,(char*)pcKey);
 
-   pcInsNode = (struct StackNode*)malloc(sizeof(struct StackNode));
-   if (pcInsNode == NULL){
+   pcInsNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
+   if (!pcInsNode){
     free(pcKeyCopy);
     return 0;
    }
@@ -98,7 +116,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
 }
 
 void *SymTable_get(SymTable_T oSymTable, const char *pcKey){
-   struct StackNode *psCheckNode;
+   struct LinkedListNode *psCheckNode;
    
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
@@ -116,7 +134,7 @@ void *SymTable_get(SymTable_T oSymTable, const char *pcKey){
 }
 
 int SymTable_contains(SymTable_T oSymTable, const char *pcKey){
-   struct StackNode *psCheckNode;
+   struct LinkedListNode *psCheckNode;
    
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
@@ -134,7 +152,8 @@ int SymTable_contains(SymTable_T oSymTable, const char *pcKey){
 }
 
 void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
-   struct StackNode *psCheckNode;
+   struct LinkedListNode *psCheckNode;
+   const void* pvTempValue;
    
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
@@ -146,8 +165,9 @@ void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvVa
    else{
      while(psCheckNode!= NULL){
        if(strcmp(psCheckNode->pcKey,pcKey)==0){
+        pvTempValue = psCheckNode->pvValue;
         psCheckNode->pvValue = pvValue;
-        return (void*)pvValue;
+        return (void*) pvTempValue;
        }
        else psCheckNode = psCheckNode->psNextNode;   
      }
@@ -155,29 +175,11 @@ void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvVa
    return NULL;
 }
 
-void SymTable_free(SymTable_T oSymTable){
-   struct StackNode *psCurrentNode;
-   struct StackNode *psNextNode;
-
-   assert(oSymTable != NULL);
-
-   for (psCurrentNode = oSymTable->psFirstNode;
-        psCurrentNode != NULL;
-        psCurrentNode = psNextNode)
-   {
-      psNextNode = psCurrentNode->psNextNode;
-      free((char*)psCurrentNode->pcKey);
-      free(psCurrentNode);
-   }
-
-   free(oSymTable);
-}
-
 void SymTable_map(SymTable_T oSymTable, 
     void (*pfApply)(const char *pcKey, void *pvValue, void *pvExtra), 
     const void *pvExtra){
   
-   struct StackNode *psCheckNode;
+   struct LinkedListNode *psCheckNode;
    
    assert(oSymTable != NULL);
    assert(pfApply != NULL);
@@ -193,56 +195,55 @@ void SymTable_map(SymTable_T oSymTable,
 
 
 void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
-  struct StackNode *psCheckNode,*psTempNode;
+  struct LinkedListNode *psCheckNode,*psTempNode;
   int comp; 
-  void* pvValue;
+  const void* pvValue;
 
   assert(oSymTable != NULL);
   assert(pcKey != NULL);
    
   psCheckNode = oSymTable->psFirstNode;
   
-  // Case = No nodes in list
   if(!psCheckNode) return NULL;  
   else{
     comp = strcmp(psCheckNode->pcKey,pcKey);
     if(comp == 0 && !psCheckNode->psNextNode){
-      pvValue =  (void*) psCheckNode->pvValue;
+      pvValue = psCheckNode->pvValue;
       free(psCheckNode->pcKey);
       free(psCheckNode);
       oSymTable->psFirstNode = NULL;
       oSymTable->iBindings = 0;
-      return pvValue;
+      return (void*)pvValue;
     }
     else if(comp == 0 && psCheckNode->psNextNode){
-      pvValue = (void*)psCheckNode->pvValue;
+      pvValue = psCheckNode->pvValue;
       psTempNode = psCheckNode;
       oSymTable->iBindings--;
       oSymTable->psFirstNode = psTempNode->psNextNode;
       free(psTempNode->pcKey);
       free(psTempNode);
-      return pvValue; 
+      return (void*) pvValue; 
     }
     else{
       while(psCheckNode->psNextNode){
         if(strcmp(psCheckNode->psNextNode->pcKey,pcKey)==0){
           if(psCheckNode->psNextNode->psNextNode){
-            pvValue = (void*)psCheckNode->psNextNode->pvValue;
+            pvValue = psCheckNode->psNextNode->pvValue;
             psTempNode = psCheckNode->psNextNode;
             psCheckNode->psNextNode = psCheckNode->psNextNode->psNextNode; 
             oSymTable->iBindings--;
             free(psTempNode->pcKey);
             free(psTempNode);
-            return pvValue; 
+            return (void*)pvValue; 
           }
           else {
-            pvValue = (void*)psCheckNode->psNextNode->pvValue;
+            pvValue = psCheckNode->psNextNode->pvValue;
             psTempNode = psCheckNode->psNextNode;
             psCheckNode->psNextNode = NULL; 
             oSymTable->iBindings--;
             free(psTempNode->pcKey);
             free(psTempNode);
-            return pvValue; 
+            return (void*)pvValue; 
           }
         }
         else psCheckNode = psCheckNode->psNextNode;   
@@ -252,46 +253,51 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   }
   return NULL;
 }
-
-
 /*
 int main(void){
     int i;
     size_t uLength;
     void *pvOldValue;
-    
+    char* ss;
+
+    ss = "2B";
+
     SymTable_T oSymTable;
     oSymTable = SymTable_new();
     
     i = SymTable_put(oSymTable, "Ruth", "RF");
     i = SymTable_put(oSymTable, "Gehrig", "1B");
     i = SymTable_put(oSymTable, "Mantle", "CF");
-    i = SymTable_put(oSymTable, "Jeter", "SS");
+    i = SymTable_put(oSymTable, "Jeter", ss);
     
     uLength = SymTable_getLength(oSymTable);
-    
     pvOldValue = SymTable_get(oSymTable, "Mantle");
-    printf("%s\n",(char*)pvOldValue );
-    
     pvOldValue = SymTable_replace(oSymTable, "Mantle", "1B");
-    printf("%s\n",(char*)pvOldValue );
-        
-    pvOldValue = SymTable_get(oSymTable, "Mantle");
-    printf("%s\n",(char*)pvOldValue );
+    i = SymTable_contains(oSymTable, "Jeter");
     
-    i = SymTable_contains(oSymTable, "Ruth");
-    printf("%i\n",i );
-    
-    
-    pvOldValue = SymTable_remove(oSymTable, "Ruth"); 
-    printf("Removed: %s\n",(char*)pvOldValue );
-    
-    i = SymTable_contains(oSymTable, "Ruth");
-    printf("%i\n",i );
+    ss = "LF";
+
+    pvOldValue = SymTable_get(oSymTable, "Jeter");
+    printf("ss: %s SymTable_get: %s\n",ss,pvOldValue);
   
-    SymTable_free(oSymTable);
-     
+    pvOldValue = SymTable_remove(oSymTable, "Jeter"); 
+    printf("ss: %s SymTable_remove: %s\n",ss,pvOldValue);
     
+    printf("true: %i\n",pvOldValue==ss);
+    
+    i = SymTable_contains(oSymTable, "Gehrig");
+    printf("%i\n", i);
+    i = SymTable_contains(oSymTable, "Ruth");
+    printf("%i\n", i);
+    i = SymTable_contains(oSymTable, "Mantle");
+    printf("%i\n", i);
+    i = SymTable_contains(oSymTable, "Jeter");
+    printf("%i\n", i);
+    SymTable_free(oSymTable);
+        
 }
 */
+
+
+
 

@@ -5,11 +5,12 @@
 
 #ifndef SYMTABLE_INCLUDED
 #define SYMTABLE_INCLUDED
+#include <stddef.h>
 
 /*--------------------------------------------------------------------*/
 /* A Stack_T object is a last-in-first-out collection of items. */
 /*--------------------------------------------------------------------*/
-typedef struct Stack *SymTable_T;
+typedef struct SymTable *SymTable_T;
 
 /*--------------------------------------------------------------------*/
 /*   SymTable_new returns a new SymTable object                       */
@@ -34,18 +35,16 @@ void SymTable_free(SymTable_T oSymTable);
 
 size_t SymTable_getLength(SymTable_T oSymTable);
 
-
 void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvValue);
 
 int SymTable_contains(SymTable_T oSymTable, const char *pcKey);
 
 void *SymTable_get(SymTable_T oSymTable, const char *pcKey);
 
+void *SymTable_remove(SymTable_T oSymTable, const char *pcKey);
 
 void SymTable_map(SymTable_T oSymTable, 
     void (*pfApply)(const char *pcKey, void *pvValue, void *pvExtra), 
     const void *pvExtra);
-/*
-void *SymTable_remove(SymTable_T oSymTable, const char *pcKey);
-*/
+
 #endif
