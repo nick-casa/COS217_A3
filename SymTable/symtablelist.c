@@ -80,37 +80,45 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
 
-   
-   pcKeyCopy = (char*)malloc(strlen(pcKey));
-   if (!pcKeyCopy)
-    return 0;
-   strcpy(pcKeyCopy,(char*)pcKey);
-
-   pcInsNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
-   if (!pcInsNode){
-    free(pcKeyCopy);
-    return 0;
-   }
-   pcInsNode->pcKey = pcKeyCopy;
-   pcInsNode->pvValue = pvValue;
-
    psNewNode = oSymTable->psFirstNode;
    if(!psNewNode){
+     pcKeyCopy = (char*)malloc(strlen(pcKey));
+     if (!pcKeyCopy)
+      return 0;
+     strcpy(pcKeyCopy,(char*)pcKey);
+
+     pcInsNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
+     if (!pcInsNode){
+      free(pcKeyCopy);
+      return 0;
+     }
+     pcInsNode->pcKey = pcKeyCopy;
+     pcInsNode->pvValue = pvValue;
      oSymTable->psFirstNode = pcInsNode;
      oSymTable->iBindings++;
      return 1;
    }
    else{
      while(psNewNode!= NULL){
-       if(strcmp(psNewNode->pcKey,pcKeyCopy)==0) return 0;
+       if(strcmp(psNewNode->pcKey,pcKey)==0) return 0;
        else psNewNode = psNewNode->psNextNode;   
      }
    }
-   
+   pcKeyCopy = (char*)malloc(strlen(pcKey));
+   if (!pcKeyCopy)
+      return 0;
+   strcpy(pcKeyCopy,(char*)pcKey);
+
+   pcInsNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
+   if (!pcInsNode){
+      free(pcKeyCopy);
+      return 0;
+   }
+   pcInsNode->pcKey = pcKeyCopy;
+   pcInsNode->pvValue = pvValue;
    pcInsNode->psNextNode = oSymTable->psFirstNode;
    oSymTable->iBindings++; 
    oSymTable->psFirstNode = pcInsNode;
-   
    return 1;
 }
 
@@ -194,13 +202,14 @@ void SymTable_map(SymTable_T oSymTable,
 
 
 void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
+  
   struct LinkedListNode *psCheckNode,*psTempNode;
   int comp; 
   const void* pvValue;
-
+  
   assert(oSymTable != NULL);
   assert(pcKey != NULL);
-   
+  
   psCheckNode = oSymTable->psFirstNode;
   
   if(!psCheckNode) return NULL;  
@@ -280,10 +289,11 @@ int main(void){
    printf("%i\n", iSuccessful);
    iSuccessful = SymTable_put(oSymTable, acRuth, acRightField);
    printf("%i\n", iSuccessful);
+
    SymTable_free(oSymTable);
 }
+
+
 */
-
-
 
 
