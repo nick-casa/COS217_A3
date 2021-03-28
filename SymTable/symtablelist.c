@@ -194,7 +194,7 @@ void SymTable_map(SymTable_T oSymTable,
    psCheckNode = oSymTable->psFirstNode;
 
    while(psCheckNode!= NULL){
-     (*pfApply)(psCheckNode->pcKey, (void*)psCheckNode->pvValue, (void*)pvExtra);
+     (pfApply)(psCheckNode->pcKey, (void*)psCheckNode->pvValue, (void*)pvExtra);
      psCheckNode = psCheckNode->psNextNode;   
    }
 
@@ -261,39 +261,32 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   }
   return NULL;
 }
+
 /*
 int main(void){
-     SymTable_T oSymTable;
-   char acJeter[] = "Jeter";
-   char acMantle[] = "Mantle";
-   char acGehrig[] = "Gehrig";
-   char acRuth[] = "Ruth";
+   SymTable_T oSymTable;
+   char *pcValue;
    char acShortstop[] = "Shortstop";
-   char acCenterField[] = "Center Field";
-   char acFirstBase[] = "First Base";
-   char acRightField[] = "Right Field";
-
+   int iFound;
+   size_t uLength;
    int iSuccessful;
 
    printf("------------------------------------------------------\n");
-   printf("Testing the SymTable_map() function.\n");
-   fflush(stdout);
-
-   oSymTable = SymTable_new();
+   printf("Testing a SymTable object that contains an empty key.\n");
    
-   iSuccessful = SymTable_put(oSymTable, acJeter, acShortstop);
-   printf("%i\n", iSuccessful);
-   iSuccessful = SymTable_put(oSymTable, acMantle, acCenterField);
-   printf("%i\n", iSuccessful);
-   iSuccessful = SymTable_put(oSymTable, acGehrig, acFirstBase);
-   printf("%i\n", iSuccessful);
-   iSuccessful = SymTable_put(oSymTable, acRuth, acRightField);
-   printf("%i\n", iSuccessful);
-
+   oSymTable = SymTable_new();
+   iSuccessful = SymTable_put(oSymTable, "", acShortstop);
+   uLength = SymTable_getLength(oSymTable);
+   iFound = SymTable_contains(oSymTable, "");
+   pcValue = (char*)SymTable_get(oSymTable, "");
+   
+   pcValue = (char*)SymTable_remove(oSymTable, "");
+   printf("%s\n",pcValue );
    SymTable_free(oSymTable);
 }
 
-
 */
+
+
 
 
