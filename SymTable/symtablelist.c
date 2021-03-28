@@ -18,7 +18,7 @@
 
 struct LinkedListNode{
    /* The key. */
-   char *pcKey;
+   const char *pcKey;
    /* Pointer to the value. */
    const void *pvValue;
 
@@ -217,7 +217,7 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
     comp = strcmp(psCheckNode->pcKey,pcKey);
     if(comp == 0 && !psCheckNode->psNextNode){
       pvValue = psCheckNode->pvValue;
-      free(psCheckNode->pcKey);
+      free((char*)psCheckNode->pcKey);
       free(psCheckNode);
       oSymTable->psFirstNode = NULL;
       oSymTable->iBindings = 0;
@@ -228,7 +228,7 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
       psTempNode = psCheckNode;
       oSymTable->iBindings--;
       oSymTable->psFirstNode = psTempNode->psNextNode;
-      free(psTempNode->pcKey);
+      free((char*)psTempNode->pcKey);
       free(psTempNode);
       return (void*) pvValue; 
     }
@@ -240,7 +240,7 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
             psTempNode = psCheckNode->psNextNode;
             psCheckNode->psNextNode = psCheckNode->psNextNode->psNextNode; 
             oSymTable->iBindings--;
-            free(psTempNode->pcKey);
+            free((char*)psTempNode->pcKey);
             free(psTempNode);
             return (void*)pvValue; 
           }
@@ -249,7 +249,7 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
             psTempNode = psCheckNode->psNextNode;
             psCheckNode->psNextNode = NULL; 
             oSymTable->iBindings--;
-            free(psTempNode->pcKey);
+            free((char*)psTempNode->pcKey);
             free(psTempNode);
             return (void*)pvValue; 
           }
