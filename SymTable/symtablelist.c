@@ -191,10 +191,10 @@ void SymTable_map(SymTable_T oSymTable,
    assert(oSymTable != NULL);
    assert(pfApply != NULL);
    
-   for (psCurrentNode = oStack->psFirstNode;
+   for (psCurrentNode = oSymTable->psFirstNode;
         psCurrentNode != NULL;
         psCurrentNode = psCurrentNode->psNextNode)
-    (*pfApply)(psCheckNode->pcKey, (void*)psCheckNode->pvValue, (void*)pvExtra;
+    (*pfApply)(psCurrentNode->pcKey, (void*)psCurrentNode->pvValue, (void*)pvExtra);
   
 }
 
