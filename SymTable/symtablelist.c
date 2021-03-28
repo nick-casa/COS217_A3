@@ -187,15 +187,17 @@ void SymTable_map(SymTable_T oSymTable,
     const void *pvExtra){
   
    struct LinkedListNode *psCurrentNode;
+   int iBindings;
    
    assert(oSymTable != NULL);
    assert(pfApply != NULL);
-   
-   for (psCurrentNode = oSymTable->psFirstNode;
-        psCurrentNode != NULL;
-        psCurrentNode = psCurrentNode->psNextNode)
-    (*pfApply)(psCurrentNode->pcKey, (void*)psCurrentNode->pvValue, (void*)pvExtra);
-  
+   psCurrentNode = oSymTable->psFirstNode;
+   for (iBindings = oSymTable->iBindings;
+        iBindings>0;
+        psCurrentNode = psCurrentNode->psNextNode){
+     (*pfApply)(psCurrentNode->pcKey, (void*)psCurrentNode->pvValue, (void*)pvExtra);
+     iBindings--;
+    }
 }
 
 
