@@ -11,7 +11,33 @@
 #include "symtable.h"
 #endif
 
-/*--------------------------------------------------------------------*/
+/*--------------------------------------------------------------------
+static void printBinding(const char *pcKey, void *pvValue,
+   void *pvExtra)
+{
+   assert(pcKey != NULL);
+   assert(pvValue != NULL);
+   assert(pvExtra != NULL);
+
+   printf((char*)pvExtra, pcKey, (char*)pvValue);
+   fflush(stdout);
+}
+
+--------------------------------------------------------------------*/
+
+/*
+
+static void printBindingSimple(const char *pcKey, void *pvValue,
+   void *pvExtra)
+{
+   assert(pcKey != NULL);
+   assert(pvValue != NULL);
+   assert(pvExtra == NULL);
+
+   printf("%s\t%s\n", pcKey, (char*)pvValue);
+   fflush(stdout);
+}
+*/
 
 /* Each item is stored in a LinkedListNode.  LinkedListNodes are linked to
    form a list.  */
@@ -262,27 +288,41 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
 
 /*
 int main(void){
-   SymTable_T oSymTable;
-   char *pcValue;
+  SymTable_T oSymTable;
+   char acJeter[] = "Jeter";
+   char acMantle[] = "Mantle";
+   char acGehrig[] = "Gehrig";
+   char acRuth[] = "Ruth";
    char acShortstop[] = "Shortstop";
-   int iFound;
-   size_t uLength;
+   char acCenterField[] = "Center Field";
+   char acFirstBase[] = "First Base";
+   char acRightField[] = "Right Field";
+
    int iSuccessful;
 
    printf("------------------------------------------------------\n");
-   printf("Testing a SymTable object that contains an empty key.\n");
-   
+   printf("Testing the SymTable_map() function.\n");
+   fflush(stdout);
+
    oSymTable = SymTable_new();
-   iSuccessful = SymTable_put(oSymTable, "", acShortstop);
-   uLength = SymTable_getLength(oSymTable);
-   iFound = SymTable_contains(oSymTable, "");
-   pcValue = (char*)SymTable_get(oSymTable, "");
-   
-   pcValue = (char*)SymTable_remove(oSymTable, "");
-   printf("%s\n",pcValue );
+   iSuccessful = SymTable_put(oSymTable, acJeter, acShortstop);
+   printf("%i\n", iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, acMantle, acCenterField);
+   printf("%i\n", iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, acGehrig, acFirstBase);
+   printf("%i\n", iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, acRuth, acRightField);
+   printf("%i\n",iSuccessful );
+   printf("Four players and their positions should appear here:\n");
+   fflush(stdout);
+   SymTable_map(oSymTable, printBinding, "%s\t%s\n");
+
+   printf("Four players and their positions should appear here:\n");
+   fflush(stdout);
+   SymTable_map(oSymTable, printBindingSimple, NULL);
+
    SymTable_free(oSymTable);
 }
-
 */
 
 
