@@ -379,10 +379,10 @@ int main(void){
    
    printf("Get %s\n",pcValue);
    
-   printf("TEST %s\n",oSymTable->psHashNodes[123].psFirstNode->pvValue);
-
+   
 
    SymTable_free(oSymTable);
+   return 0;
 }
 
 
