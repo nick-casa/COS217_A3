@@ -308,7 +308,6 @@ static int Stack_grow(Stack_T oStack)
    return 1;
 }
 
-*/
 
 int main(void){
    SymTable_T oSymTable;
@@ -323,9 +322,7 @@ int main(void){
 
    oSymTable = SymTable_new();
    
-   /* Note that strings "250", "469", "947", "1303", and "2016" hash
-      to the same bucket -- bucket 123. */
-
+   
    iSuccessful = SymTable_put(oSymTable, "250", acCenterField);
    printf("%i\n",iSuccessful);
    iSuccessful = SymTable_put(oSymTable, "469", acCatcher);
@@ -385,4 +382,5 @@ int main(void){
    return 0;
 }
 
+*/
 
