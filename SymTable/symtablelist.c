@@ -11,33 +11,6 @@
 #include "symtable.h"
 #endif
 
-/*--------------------------------------------------------------------
-static void printBinding(const char *pcKey, void *pvValue,
-   void *pvExtra)
-{
-   assert(pcKey != NULL);
-   assert(pvValue != NULL);
-   assert(pvExtra != NULL);
-
-   printf((char*)pvExtra, pcKey, (char*)pvValue);
-   fflush(stdout);
-}
-
---------------------------------------------------------------------*/
-
-/*
-
-static void printBindingSimple(const char *pcKey, void *pvValue,
-   void *pvExtra)
-{
-   assert(pcKey != NULL);
-   assert(pvValue != NULL);
-   assert(pvExtra == NULL);
-
-   printf("%s\t%s\n", pcKey, (char*)pvValue);
-   fflush(stdout);
-}
-*/
 
 /* Each item is stored in a LinkedListNode.  LinkedListNodes are linked to
    form a list.  */
@@ -113,19 +86,21 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    assert(pcKey != NULL);
 
    psNewNode = oSymTable->psFirstNode;
+   
    if(!psNewNode){
      pcKeyCopy = (char*)malloc(strlen(pcKey));
-     if (!pcKeyCopy)
+     if (pcKeyCopy == NULL)
       return 0;
      strcpy(pcKeyCopy,(char*)pcKey);
 
      pcInsNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
-     if (!pcInsNode){
+     if (pcInsNode == NULL){
       free(pcKeyCopy);
       return 0;
      }
      pcInsNode->pcKey = pcKeyCopy;
      pcInsNode->pvValue = pvValue;
+     pcInsNode->psNextNode = NULL;
      oSymTable->psFirstNode = pcInsNode;
      oSymTable->iBindings++;
      return 1;
@@ -137,12 +112,12 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
      }
    }
    pcKeyCopy = (char*)malloc(strlen(pcKey));
-   if (!pcKeyCopy)
+   if (pcKeyCopy == NULL)
       return 0;
    strcpy(pcKeyCopy,(char*)pcKey);
 
    pcInsNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
-   if (!pcInsNode){
+   if (pcInsNode == NULL){
       free(pcKeyCopy);
       return 0;
    }
@@ -251,57 +226,70 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   
   psCheckNode = oSymTable->psFirstNode;
   
-  if(!psCheckNode) return NULL;  
+  if(psCheckNode == NULL) return NULL;  
+
+  /* Check whether the first node is same as removed key*/
+  comp = strcmp(psCheckNode->pcKey,pcKey);
+
+  if(comp == 0 && !psCheckNode->psNextNode){
+
+    printf("------------------------1-------------------\n");
+    pvValue = psCheckNode->pvValue;
+    free((char*)psCheckNode->pcKey);
+    free(psCheckNode);
+    oSymTable->psFirstNode = NULL;
+    oSymTable->iBindings = 0;
+    return (void*)pvValue;
+  }
+  
+  else if(comp == 0 && psCheckNode->psNextNode){
+
+    printf("------------------------2-------------------\n");
+    pvValue = psCheckNode->pvValue;
+    psTempNode = psCheckNode;
+    oSymTable->iBindings--;
+    oSymTable->psFirstNode = psTempNode->psNextNode;
+    free((char*)psTempNode->pcKey);
+    free(psTempNode);
+    return (void*) pvValue; 
+
+  }
+
   else{
-    comp = strcmp(psCheckNode->pcKey,pcKey);
-    if(comp == 0 && !psCheckNode->psNextNode){
-      pvValue = psCheckNode->pvValue;
-      free((char*)psCheckNode->pcKey);
-      free(psCheckNode);
-      oSymTable->psFirstNode = NULL;
-      oSymTable->iBindings = 0;
-      return (void*)pvValue;
-    }
-    else if(comp == 0 && psCheckNode->psNextNode){
-      pvValue = psCheckNode->pvValue;
-      psTempNode = psCheckNode;
-      oSymTable->iBindings--;
-      oSymTable->psFirstNode = psTempNode->psNextNode;
-      free((char*)psTempNode->pcKey);
-      free(psTempNode);
-      return (void*) pvValue; 
-    }
-    else{
-      while(psCheckNode->psNextNode){
-        if(strcmp(psCheckNode->psNextNode->pcKey,pcKey)==0){
-          if(psCheckNode->psNextNode->psNextNode){
-            pvValue = psCheckNode->psNextNode->pvValue;
-            psTempNode = psCheckNode->psNextNode;
-            psCheckNode->psNextNode = psCheckNode->psNextNode->psNextNode; 
-            oSymTable->iBindings--;
-            free((char*)psTempNode->pcKey);
-            free(psTempNode);
-            return (void*)pvValue; 
-          }
-          else {
-            pvValue = psCheckNode->psNextNode->pvValue;
-            psTempNode = psCheckNode->psNextNode;
-            psCheckNode->psNextNode = NULL; 
-            oSymTable->iBindings--;
-            free((char*)psTempNode->pcKey);
-            free(psTempNode);
-            return (void*)pvValue; 
-          }
+    while(psCheckNode){
+      /* Case 1.0 : psCheckNode->psNextNode exists and is key  */
+      if(psCheckNode->psNextNode && strcmp(psCheckNode->psNextNode->pcKey,pcKey)){
+        /*  Case 1.1 : psCheckNode->psNextNode->psNextNode exists     */
+        if(psCheckNode->psNextNode->psNextNode){
+          printf("------------------------3-------------------\n");
+    
+          pvValue = psCheckNode->psNextNode->pvValue;
+          psTempNode = psCheckNode->psNextNode->psNextNode;
+          free((char*)psCheckNode->psNextNode->pcKey);
+          free(psCheckNode->psNextNode);
+          psCheckNode->psNextNode = psTempNode;
+          oSymTable->iBindings--;
+          return (void*)pvValue; 
         }
-        else psCheckNode = psCheckNode->psNextNode;   
+        /*  Case 1.2 : psCheckNode->psNextNode->psNextNode does not exists  */
+        else{
+          printf("------------------------4-------------------\n");
+    
+          pvValue = psCheckNode->psNextNode->pvValue;
+          free((char*)psCheckNode->psNextNode->pcKey);
+          free(psCheckNode->psNextNode);
+          psCheckNode->psNextNode = NULL;
+          oSymTable->iBindings--;
+          return (void*)pvValue; 
+        }
       }
-      
-    }
+      else psCheckNode = psCheckNode->psNextNode;   
+    }    
   }
   return NULL;
 }
-
 /*
+
 int main(void){
   SymTable_T oSymTable;
    char acJeter[] = "Jeter";
@@ -313,33 +301,72 @@ int main(void){
    char acFirstBase[] = "First Base";
    char acRightField[] = "Right Field";
 
+   char *pcValue;
+   int iFound;
+   size_t uLength;
    int iSuccessful;
 
-   printf("------------------------------------------------------\n");
-   printf("Testing the SymTable_map() function.\n");
-   fflush(stdout);
-
+ 
    oSymTable = SymTable_new();
-   iSuccessful = SymTable_put(oSymTable, acJeter, acShortstop);
-   printf("%i\n", iSuccessful);
-   iSuccessful = SymTable_put(oSymTable, acMantle, acCenterField);
-   printf("%i\n", iSuccessful);
-   iSuccessful = SymTable_put(oSymTable, acGehrig, acFirstBase);
-   printf("%i\n", iSuccessful);
-   iSuccessful = SymTable_put(oSymTable, acRuth, acRightField);
-   printf("%i\n",iSuccessful );
-   printf("Four players and their positions should appear here:\n");
-   fflush(stdout);
-   SymTable_map(oSymTable, printBinding, "%s\t%s\n");
+   
 
-   printf("Four players and their positions should appear here:\n");
-   fflush(stdout);
-   SymTable_map(oSymTable, printBindingSimple, NULL);
+   iSuccessful = SymTable_put(oSymTable, acJeter, acShortstop);
+    printf("%s\n", oSymTable->psFirstNode->pvValue);
+    
+   iSuccessful = SymTable_put(oSymTable, acMantle, acCenterField);
+    printf("%s\n", oSymTable->psFirstNode->pvValue);
+    
+   iSuccessful = SymTable_put(oSymTable, acGehrig, acFirstBase);
+    printf("%s\n", oSymTable->psFirstNode->pvValue);
+    
+   iSuccessful = SymTable_put(oSymTable, acRuth, acRightField);
+    printf("%s\n", oSymTable->psFirstNode->pvValue);
+    
+   uLength = SymTable_getLength(oSymTable);
+    
+   pcValue = (char*)SymTable_remove(oSymTable, acJeter);
+    printf("Removed: %s\n", pcValue);
+   
+
+   uLength = SymTable_getLength(oSymTable);
+    iFound = SymTable_contains(oSymTable, acJeter);
+   
+
+   pcValue = (char*)SymTable_remove(oSymTable, acRuth);
+   printf("Removed: %s\n", pcValue);
+   
+
+   uLength = SymTable_getLength(oSymTable);
+   
+
+   iFound = SymTable_contains(oSymTable, acRuth);
+   
+
+   pcValue = (char*)SymTable_remove(oSymTable, "Clemens");
+   printf("Removed: %s\n", pcValue);
+   
+
+   uLength = SymTable_getLength(oSymTable);
+   
+
+   iFound = SymTable_contains(oSymTable, "Clemens");
+   
+   pcValue = (char*)SymTable_remove(oSymTable, acRuth);
+   printf("Removed: %s\n", pcValue);
+   
+
+   uLength = SymTable_getLength(oSymTable);
+   
+
+   iFound = SymTable_contains(oSymTable, acRuth);
+   printf("Contains Ruth: %i\n", iFound);
+  
 
    SymTable_free(oSymTable);
+
+ 
 }
 */
-
 
 
 
