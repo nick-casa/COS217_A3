@@ -5,7 +5,6 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #ifndef SYMTABLE_INCLUDED
 #include "symtable.h"
@@ -177,7 +176,6 @@ void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvVa
    
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
-   assert(pvValue != NULL);
    
    psCheckNode = oSymTable->psFirstNode;
 
@@ -232,8 +230,6 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   comp = strcmp(psCheckNode->pcKey,pcKey);
 
   if(comp == 0 && !psCheckNode->psNextNode){
-
-    printf("------------------------1-------------------\n");
     pvValue = psCheckNode->pvValue;
     free((char*)psCheckNode->pcKey);
     free(psCheckNode);
@@ -243,8 +239,6 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   }
   
   else if(comp == 0 && psCheckNode->psNextNode){
-
-    printf("------------------------2-------------------\n");
     pvValue = psCheckNode->pvValue;
     psTempNode = psCheckNode;
     oSymTable->iBindings--;
@@ -258,11 +252,9 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   else{
     while(psCheckNode){
       /* Case 1.0 : psCheckNode->psNextNode exists and is key  */
-      if(psCheckNode->psNextNode && strcmp(psCheckNode->psNextNode->pcKey,pcKey)){
+      if(psCheckNode->psNextNode && strcmp(psCheckNode->psNextNode->pcKey,pcKey) == 0 ){
         /*  Case 1.1 : psCheckNode->psNextNode->psNextNode exists     */
         if(psCheckNode->psNextNode->psNextNode){
-          printf("------------------------3-------------------\n");
-    
           pvValue = psCheckNode->psNextNode->pvValue;
           psTempNode = psCheckNode->psNextNode->psNextNode;
           free((char*)psCheckNode->psNextNode->pcKey);
@@ -273,8 +265,6 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
         }
         /*  Case 1.2 : psCheckNode->psNextNode->psNextNode does not exists  */
         else{
-          printf("------------------------4-------------------\n");
-    
           pvValue = psCheckNode->psNextNode->pvValue;
           free((char*)psCheckNode->psNextNode->pcKey);
           free(psCheckNode->psNextNode);
@@ -288,85 +278,7 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   }
   return NULL;
 }
-/*
 
-int main(void){
-  SymTable_T oSymTable;
-   char acJeter[] = "Jeter";
-   char acMantle[] = "Mantle";
-   char acGehrig[] = "Gehrig";
-   char acRuth[] = "Ruth";
-   char acShortstop[] = "Shortstop";
-   char acCenterField[] = "Center Field";
-   char acFirstBase[] = "First Base";
-   char acRightField[] = "Right Field";
-
-   char *pcValue;
-   int iFound;
-   size_t uLength;
-   int iSuccessful;
-
- 
-   oSymTable = SymTable_new();
-   
-
-   iSuccessful = SymTable_put(oSymTable, acJeter, acShortstop);
-    printf("%s\n", oSymTable->psFirstNode->pvValue);
-    
-   iSuccessful = SymTable_put(oSymTable, acMantle, acCenterField);
-    printf("%s\n", oSymTable->psFirstNode->pvValue);
-    
-   iSuccessful = SymTable_put(oSymTable, acGehrig, acFirstBase);
-    printf("%s\n", oSymTable->psFirstNode->pvValue);
-    
-   iSuccessful = SymTable_put(oSymTable, acRuth, acRightField);
-    printf("%s\n", oSymTable->psFirstNode->pvValue);
-    
-   uLength = SymTable_getLength(oSymTable);
-    
-   pcValue = (char*)SymTable_remove(oSymTable, acJeter);
-    printf("Removed: %s\n", pcValue);
-   
-
-   uLength = SymTable_getLength(oSymTable);
-    iFound = SymTable_contains(oSymTable, acJeter);
-   
-
-   pcValue = (char*)SymTable_remove(oSymTable, acRuth);
-   printf("Removed: %s\n", pcValue);
-   
-
-   uLength = SymTable_getLength(oSymTable);
-   
-
-   iFound = SymTable_contains(oSymTable, acRuth);
-   
-
-   pcValue = (char*)SymTable_remove(oSymTable, "Clemens");
-   printf("Removed: %s\n", pcValue);
-   
-
-   uLength = SymTable_getLength(oSymTable);
-   
-
-   iFound = SymTable_contains(oSymTable, "Clemens");
-   
-   pcValue = (char*)SymTable_remove(oSymTable, acRuth);
-   printf("Removed: %s\n", pcValue);
-   
-
-   uLength = SymTable_getLength(oSymTable);
-   
-
-   iFound = SymTable_contains(oSymTable, acRuth);
-   printf("Contains Ruth: %i\n", iFound);
-  
-
-   SymTable_free(oSymTable);
-
- 
-}
-*/
 
 
 
