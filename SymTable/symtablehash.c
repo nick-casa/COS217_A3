@@ -53,10 +53,15 @@ static size_t SymTable_hash(const char *pcKey, size_t uBucketCount){
 }
    
 
+
+
+SymTable_T SymTable_new(void);
+
+/*-------------------------------------------------------------------- 
 /*--------------------------------------------------------------------*/
 
 /* Double the physical length of oStack.  Return 1 (TRUE) if
-   successful, or 0 (FALSE) if insufficient memory is available. */
+   successful, or 0 (FALSE) if insufficient memory is available. 
 
 static int Stack_grow(Stack_T oStack)
 {
@@ -77,11 +82,6 @@ static int Stack_grow(Stack_T oStack)
 
    return 1;
 }
-
-SymTable_T SymTable_new(void);
-
-/*-------------------------------------------------------------------- 
-
 int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue);
 
 void SymTable_free(SymTable_T oSymTable);
