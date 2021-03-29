@@ -67,7 +67,7 @@ SymTable_T SymTable_new(void){
 
    if (oSymTable == NULL) return NULL;
         
-   oSymTable->psHashNodes =  malloc(bucketSizes[0]*sizeof(oSymTable->psHashNodes));
+   oSymTable->psHashNodes = calloc(bucketSizes[0]*sizeof(oSymTable->psHashNodes));
    oSymTable->stBindings = 0;
    oSymTable->stBuckets = bucketSizes[0];
    
