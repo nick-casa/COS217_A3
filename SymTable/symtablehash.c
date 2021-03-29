@@ -117,7 +117,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
         else psTempNode = psTempNode->psNextNode;
    }
    if(psHashNode->psFirstNode == NULL){
-     pcKeyCopy = (char*)malloc(strlen(pcKey));
+     pcKeyCopy = (char*)malloc(strlen(pcKey)+1);
      if (pcKeyCopy == NULL) return 0;
      strcpy(pcKeyCopy,(char*)pcKey);
 
@@ -133,7 +133,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
      oSymTable->stBindings++;
    }
    else{
-     pcKeyCopy = (char*)malloc(strlen(pcKey));
+     pcKeyCopy = (char*)malloc(strlen(pcKey)+1);
      if (pcKeyCopy == NULL) return 0;
      strcpy(pcKeyCopy,(char*)pcKey);
 
@@ -254,6 +254,7 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
    psHashNode = &(oSymTable->psHashNodes[hashValue]);
    psTempNode = psHashNode->psFirstNode;
    psLastNode = psTempNode;
+   
    if(psTempNode != NULL){
      while(psTempNode){
        if(strcmp(psTempNode->pcKey,pcKey) == 0){
@@ -273,6 +274,7 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
             free(psTempNode);
             oSymTable->stBindings--;
             psTempNode = NULL;
+            psLastNode->psNextNode = NULL;
             return (void*)pvValue;   
           }
        }
