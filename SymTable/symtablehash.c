@@ -274,7 +274,8 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
             free(psTempNode);
             oSymTable->stBindings--;
             psTempNode = NULL;
-            psLastNode->psNextNode = NULL;
+            if(psHashNode->psFirstNode == psLastNode) psHashNode->psFirstNode = NULL;
+            else psLastNode->psNextNode = NULL;
             return (void*)pvValue;   
           }
        }
