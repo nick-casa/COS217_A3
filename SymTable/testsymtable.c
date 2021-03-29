@@ -326,28 +326,20 @@ static void testRemove(void)
 
    oSymTable = SymTable_new();
    ASSURE(oSymTable != NULL);
-
    iSuccessful = SymTable_put(oSymTable, acJeter, acShortstop);
    ASSURE(iSuccessful);
-
    iSuccessful = SymTable_put(oSymTable, acMantle, acCenterField);
    ASSURE(iSuccessful);
-
    iSuccessful = SymTable_put(oSymTable, acGehrig, acFirstBase);
    ASSURE(iSuccessful);
-
    iSuccessful = SymTable_put(oSymTable, acRuth, acRightField);
    ASSURE(iSuccessful);
-
    uLength = SymTable_getLength(oSymTable);
    ASSURE(uLength == 4);
-
    pcValue = (char*)SymTable_remove(oSymTable, acJeter);
    ASSURE(pcValue == acShortstop);
-
    uLength = SymTable_getLength(oSymTable);
    ASSURE(uLength == 3);
-
    iFound = SymTable_contains(oSymTable, acJeter);
    ASSURE(! iFound);
 
@@ -405,23 +397,29 @@ static void testMap(void)
 
    oSymTable = SymTable_new();
    ASSURE(oSymTable != NULL);
-
+   printf("-----------------------1-------------------------------\n");
+   
    iSuccessful = SymTable_put(oSymTable, acJeter, acShortstop);
    ASSURE(iSuccessful);
-
+   printf("-----------------------2-------------------------------\n");
+   
    iSuccessful = SymTable_put(oSymTable, acMantle, acCenterField);
    ASSURE(iSuccessful);
-
+   printf("-----------------------3-------------------------------\n");
+   
    iSuccessful = SymTable_put(oSymTable, acGehrig, acFirstBase);
    ASSURE(iSuccessful);
-
+   printf("-----------------------4-------------------------------\n");
+   
    iSuccessful = SymTable_put(oSymTable, acRuth, acRightField);
    ASSURE(iSuccessful);
-
+   printf("-----------------------5------------------------------\n");
+   
    printf("Four players and their positions should appear here:\n");
    fflush(stdout);
    SymTable_map(oSymTable, printBinding, "%s\t%s\n");
-
+   printf("-----------------------6------------------------------\n");
+   
    printf("Four players and their positions should appear here:\n");
    fflush(stdout);
    SymTable_map(oSymTable, printBindingSimple, NULL);

@@ -74,8 +74,9 @@ SymTable_T SymTable_new(void){
    return oSymTable;
 }
 
-size_t SymTable_getLength(SymTable_T oSymTable) return oSymTable->stBindings;
-
+size_t SymTable_getLength(SymTable_T oSymTable){
+    return oSymTable->stBindings;
+}
 
 int SymTable_contains(SymTable_T oSymTable, const char *pcKey){
    size_t hashValue;
@@ -111,11 +112,10 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    psTempNode = psHashNode->psFirstNode;
    
    
-   while(psTempNode){
+   while(psTempNode != NULL){
         if(strcmp(psTempNode->pcKey,pcKey) == 0) return 0;
         else psTempNode = psTempNode->psNextNode;
    }
-
    if(psHashNode->psFirstNode == NULL){
      pcKeyCopy = (char*)malloc(strlen(pcKey));
      if (pcKeyCopy == NULL) return 0;
@@ -167,22 +167,125 @@ void SymTable_free(SymTable_T oSymTable){
              psNextLink = psTempNode->psNextNode;
              free((char*)psTempNode->pcKey);
              free(psTempNode);
-             psTempNode = psNextLink;
+             psHashNode->psFirstNode = psNextLink; 
           }
-          else if(psTempNode){
+          else{
             free((char*)psTempNode->pcKey);
             free(psTempNode);  
-            psTempNode=NULL;  
+            psHashNode->psFirstNode = NULL; 
           }
+          psTempNode = psHashNode->psFirstNode;
         }
    }
-
    free(oSymTable->psHashNodes);
    free(oSymTable);
 }
 
-void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvValue);
+void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
+   size_t hashValue;
+   struct LinkedListNode *psTempNode;
+   struct HashTableNode *psHashNode;
+   const void *pvTempValue;
 
+   assert(oSymTable != NULL);
+   assert(pcKey != NULL);
+
+   hashValue = SymTable_hash(pcKey,oSymTable->stBuckets);
+   psHashNode = &(oSymTable->psHashNodes[hashValue]);
+   psTempNode = psHashNode->psFirstNode;
+
+   while(psTempNode){
+        if(strcmp(psTempNode->pcKey,pcKey) == 0){
+                pvTempValue = psTempNode->pvValue;
+                psTempNode->pvValue = pvValue;
+                return (void*) pvTempValue;
+        }
+        else psTempNode = psTempNode->psNextNode;
+   }
+   return NULL;    
+}
+
+void *SymTable_get(SymTable_T oSymTable, const char *pcKey){
+   size_t hashValue;
+   struct LinkedListNode *psTempNode;
+   struct HashTableNode *psHashNode;
+   
+   assert(oSymTable != NULL);
+   assert(pcKey != NULL);
+
+   hashValue = SymTable_hash(pcKey,oSymTable->stBuckets);
+   psHashNode = &(oSymTable->psHashNodes[hashValue]);
+   psTempNode = psHashNode->psFirstNode;
+
+   while(psTempNode){
+        if(strcmp(psTempNode->pcKey,pcKey) == 0) return (void*) psTempNode->pvValue;
+        else psTempNode = psTempNode->psNextNode;
+   }
+   return NULL;      
+}
+
+void SymTable_map(SymTable_T oSymTable, 
+    void (*pfApply)(const char *pcKey, void *pvValue, void *pvExtra), 
+    const void *pvExtra){
+   struct LinkedListNode *psTempNode;
+   struct HashTableNode *psHashNode;
+   int i;
+   
+   for(i=0;i<oSymTable->stBuckets;i++){
+        psHashNode = &(oSymTable->psHashNodes[i]);
+        psTempNode = psHashNode->psFirstNode;
+        while(psTempNode){
+          (*pfApply)(psTempNode->pcKey, (void*)psTempNode->pvValue,(void*) pvExtra);
+          psTempNode = psTempNode->psNextNode;
+        }
+   }
+}
+
+void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
+   size_t hashValue;
+   struct LinkedListNode *psTempNode, *psLastNode;
+   struct HashTableNode *psHashNode;
+   const void* pvValue;
+   
+   assert(oSymTable != NULL);
+   assert(pcKey != NULL);
+
+   hashValue = SymTable_hash(pcKey,oSymTable->stBuckets);
+   psHashNode = &(oSymTable->psHashNodes[hashValue]);
+   psTempNode = psHashNode->psFirstNode;
+   psLastNode = psTempNode;
+   if(psTempNode != NULL){
+     while(psTempNode){
+       if(strcmp(psTempNode->pcKey,pcKey) == 0){
+          if(psTempNode->psNextNode){
+            pvValue = psTempNode->pvValue;
+            if(psHashNode->psFirstNode == psLastNode) psHashNode->psFirstNode = psTempNode->psNextNode;
+            else psLastNode->psNextNode = psTempNode->psNextNode;
+            free((char*)psTempNode->pcKey);
+            free(psTempNode);
+            oSymTable->stBindings--;
+            return (void*)pvValue;
+          }
+          else{
+            pvValue = psTempNode->pvValue;
+            psTempNode->pvValue = NULL;
+            free((char*)psTempNode->pcKey);
+            free(psTempNode);
+            oSymTable->stBindings--;
+            psTempNode = NULL;
+            return (void*)pvValue;   
+          }
+       }
+       else{
+          psLastNode = psTempNode;
+          psTempNode = psTempNode->psNextNode;
+       }
+     }
+   }
+   return NULL;
+   
+   
+}
 /*-------------------------------------------------------------------- 
 
 static int Stack_grow(Stack_T oStack)
@@ -205,55 +308,81 @@ static int Stack_grow(Stack_T oStack)
    return 1;
 }
 
-
-
-
-
-void *SymTable_get(SymTable_T oSymTable, const char *pcKey);
-
-void *SymTable_remove(SymTable_T oSymTable, const char *pcKey);
-
-void SymTable_map(SymTable_T oSymTable, 
-    void (*pfApply)(const char *pcKey, void *pvValue, void *pvExtra), 
-    const void *pvExtra);
-
-  --------------------------------------------------------------------*/
+*/
 
 int main(void){
    SymTable_T oSymTable;
-   char acJeter[] = "Jeter";
-   char acMantle[] = "Mantle";
-   char acGehrig[] = "Gehrig";
-   char acRuth[] = "Ruth";
-   char acShortstop[] = "Shortstop";
-   char acCenterField[] = "Center Field";
-   char acFirstBase[] = "First Base";
-   char acRightField[] = "Right Field";
-
-   char acBrown[] = "Brown";
-   
-   char *pcValue;
    int iSuccessful;
-   int iFound;
-   size_t uLength;
+   char acCenterField[] = "pitcher";
+   char acCatcher[] = "catcher";
+   char acFirstBase[] = "first base";
+   char acRightField[] = "second base";
+   char *pcValue;
 
-   printf("------------------------------------------------------\n");
-   printf("Testing the most basic SymTable functions.\n");
-   printf("No output should appear here:\n");
-   fflush(stdout);
-
-   /* Test SymTable_new(). */
+   
 
    oSymTable = SymTable_new();
    
-   
-   iSuccessful = SymTable_put(oSymTable, acJeter, acShortstop);
+   /* Note that strings "250", "469", "947", "1303", and "2016" hash
+      to the same bucket -- bucket 123. */
+
+   iSuccessful = SymTable_put(oSymTable, "250", acCenterField);
    printf("%i\n",iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, "469", acCatcher);
+   printf("%i\n",iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, "947", acFirstBase);
+   printf("%i\n",iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, "1303", acRightField);
+   printf("%i\n",iSuccessful);
+   iSuccessful = SymTable_put(oSymTable, "2016", acRightField);
+   printf("%i\n",iSuccessful);
+   
+   pcValue = SymTable_get(oSymTable, "250");
+   printf("%s\n",pcValue);
+   pcValue = SymTable_get(oSymTable, "469");
+   printf("%s\n",pcValue);
+   pcValue = SymTable_get(oSymTable, "947");
+   printf("%s\n",pcValue);
+   pcValue = SymTable_get(oSymTable, "1303");
+   printf("%s\n",pcValue);
+   pcValue = SymTable_get(oSymTable, "2016");
+   printf("%s\n",pcValue);
 
-   iFound = SymTable_contains(oSymTable, acJeter);
-   printf("%i\n",iFound);   
+   printf("Found 1 %s\n",oSymTable->psHashNodes[123].psFirstNode->pcKey);
+   printf("Found 1 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->pcKey);
+   printf("Found 1 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->psNextNode->pcKey);
+   printf("Found 1 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->psNextNode->psNextNode->pcKey);
+   printf("Found 1 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->psNextNode->psNextNode->psNextNode->pcKey);
+   
+   pcValue = SymTable_remove(oSymTable, "947");
+   printf("Removed %s\n",pcValue);
+   printf("Found 2 %s\n",oSymTable->psHashNodes[123].psFirstNode->pcKey);
+   printf("Found 2 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->pcKey);
+   printf("Found 2 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->psNextNode->pcKey);
+   printf("Found 2 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->psNextNode->psNextNode->pcKey);
+   
+   pcValue = SymTable_remove(oSymTable, "2016");
+   printf("Removed %s\n",pcValue);
+   printf("Found 3 %s\n",oSymTable->psHashNodes[123].psFirstNode->pcKey);
+   printf("Found 3 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->pcKey);
+   printf("Found 3 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->psNextNode->pcKey);
+   
+   pcValue = SymTable_remove(oSymTable, "250");
+   printf("Removed %s\n",pcValue);
+   printf("Found 4 %s\n",oSymTable->psHashNodes[123].psFirstNode->pcKey);
+   printf("Found 4 %s\n",oSymTable->psHashNodes[123].psFirstNode->psNextNode->pcKey);
+   
+   pcValue = SymTable_get(oSymTable, "469");
+   
+   printf("Get %s\n",pcValue);
+   pcValue = SymTable_get(oSymTable, "1303");
+   
+   printf("Get %s\n",pcValue);
+   
+   printf("TEST %s\n",oSymTable->psHashNodes[123].psFirstNode->pvValue);
 
-   printf("%s\n",oSymTable->psHashNodes[SymTable_hash(acJeter,509)].psFirstNode->pcKey); 
+
    SymTable_free(oSymTable);
-
 }
+
+
