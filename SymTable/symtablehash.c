@@ -155,7 +155,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
 void SymTable_free(SymTable_T oSymTable){
    struct LinkedListNode *psTempNode, *psNextLink;
    struct HashTableNode *psHashNode;
-   int i;
+   size_t i;
    
    assert(oSymTable != NULL);
 
@@ -229,7 +229,7 @@ void SymTable_map(SymTable_T oSymTable,
     const void *pvExtra){
    struct LinkedListNode *psTempNode;
    struct HashTableNode *psHashNode;
-   int i;
+   size_t i;
    
    for(i=0;i<oSymTable->stBuckets;i++){
         psHashNode = &(oSymTable->psHashNodes[i]);
