@@ -123,11 +123,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
 
    hashValue = SymTable_hash(pcKey,bucketSizes[oSymTable->stBucketIndex]);
    
-   if(oSymTable->psFirstNode[hashValue] != NULL)
-        psTempNode = oSymTable->psFirstNode[hashValue];
-   else psTempNode = NULL;
-
-   if(psTempNode == NULL){
+   if(oSymTable->psFirstNode[hashValue] == NULL){
      pcKeyCopy = (char*)malloc(strlen(pcKey)+1);
      if (pcKeyCopy == NULL) return 0;
      strcpy(pcKeyCopy,(char*)pcKey);
@@ -144,6 +140,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
      oSymTable->stBindings++;
    }
    else{
+     psTempNode = oSymTable->psFirstNode[hashValue];
      while(psTempNode != NULL){
         if(strcmp(psTempNode->pcKey,pcKey) == 0) return 0;
         else psTempNode = psTempNode->psNextNode;
@@ -171,14 +168,12 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
 /*--------------------------------------------------------------------*/
 
 void SymTable_free(SymTable_T oSymTable){
-   struct LinkedListNode *psTempNode, *psNextLink;
+   struct LinkedListNode *psNextLink;
    size_t i;
    
    assert(oSymTable != NULL);
 
    for(i=0;i<bucketSizes[oSymTable->stBucketIndex];i++){
-
-        
         while(oSymTable->psFirstNode[i]){
           if(oSymTable->psFirstNode[i]->psNextNode){
              psNextLink = oSymTable->psFirstNode[i]->psNextNode;
@@ -193,6 +188,7 @@ void SymTable_free(SymTable_T oSymTable){
           }
         }
    }
+
    free(oSymTable->psFirstNode);
    free(oSymTable);
 }
