@@ -80,16 +80,16 @@ static void SymTable_grow(SymTable_T oSymTable){
 
    assert(oSymTable != NULL);
 
-   newSize = ++oSymTable->stBucketIndex;
+   newSize = oSymTable->stBucketIndex;
+   newSize++;
    newSymTable = SymTable_larger(bucketSizes[newSize], newSize);
    
    SymTable_map(oSymTable, putMap, newSymTable);
    oSymTable->stBucketIndex = newSize;
    oldHashTable = oSymTable->psFirstNode;
    oSymTable->psFirstNode = newSymTable->psFirstNode;
-   free(newSymTable);
-
    
+   free(newSymTable);
    for(i=0;i<bucketSizes[newSize--];i++){
         psCurrentLink = oldHashTable[i];
         while(psCurrentLink != NULL){
@@ -100,8 +100,6 @@ static void SymTable_grow(SymTable_T oSymTable){
         }
    }
    free(oldHashTable);
-   
-
 }
 /*--------------------------------------------------------------------*/
 
