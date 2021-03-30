@@ -89,7 +89,7 @@ static void SymTable_grow(SymTable_T oSymTable){
    oldHashTable = oSymTable->psFirstNode;
    oSymTable->psFirstNode = newSymTable->psFirstNode;
    
-   free(newSymTable);
+   SymTable_free(newSymTable);
    for(i=0;i<bucketSizes[newSize--];i++){
         psCurrentLink = oldHashTable[i];
         while(psCurrentLink != NULL){
