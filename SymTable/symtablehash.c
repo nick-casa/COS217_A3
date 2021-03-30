@@ -178,22 +178,18 @@ void SymTable_free(SymTable_T oSymTable){
 
    for(i=0;i<bucketSizes[oSymTable->stBucketIndex];i++){
 
-        if(oSymTable->psFirstNode[i] != NULL)
-                psTempNode = oSymTable->psFirstNode[i];
-        else psTempNode = NULL;
-       
-        while(psTempNode){
-          if(psTempNode->psNextNode){
-             psNextLink = psTempNode->psNextNode;
-             free((char*)psTempNode->pcKey);
-             free(psTempNode);
+        
+        while((oSymTable->psFirstNode[i]){
+          if((oSymTable->psFirstNode[i]->psNextNode){
+             psNextLink = oSymTable->psFirstNode[i]->psNextNode;
+             free((char*)oSymTable->psFirstNode[i]->pcKey);
+             free(oSymTable->psFirstNode[i]);
              oSymTable->psFirstNode[i] = psNextLink;
-             psTempNode = oSymTable->psFirstNode[i]; 
           }
           else{
-            free((char*)psTempNode->pcKey);
-            free(psTempNode);  
-            psTempNode = NULL; 
+            free((char*)(oSymTable->psFirstNode[i]->pcKey);
+            free((oSymTable->psFirstNode[i]);  
+            (oSymTable->psFirstNode[i] = NULL; 
           }
         }
    }
