@@ -53,7 +53,7 @@ SymTable_T SymTable_new(void){
 
 void SymTable_free(SymTable_T oSymTable){
    struct LinkedListNode *psCurrentNode;
-   int iBindings,iIter;
+   size_t iBindings,iIter;
 
    assert(oSymTable != NULL);
    for(iBindings = oSymTable->iBindings;
