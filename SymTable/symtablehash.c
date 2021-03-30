@@ -72,20 +72,37 @@ static void putMap(const char *pcKey, void *pvValue, void *pvExtra){
 }
 /*--------------------------------------------------------------------*/
 
-static SymTable_T SymTable_grow(SymTable_T oSymTable){
+static void SymTable_grow(SymTable_T oSymTable){
    SymTable_T newSymTable;
-   size_t newSize;
+   struct LinkedListNode **oldHashTable;
+   struct LinkedListNode *psNextLink, *psCurrentLink;
+   size_t newSize, i;
 
-   newSize = oSymTable->stBucketIndex;
-   newSize++;
+   assert(oSymTable != NULL);
+
+   newSize = ++oSymTable->stBucketIndex;
    newSymTable = SymTable_larger(bucketSizes[newSize]);
    newSymTable->stBucketIndex = newSize;
-   newSymTable->stBindings = oSymTable->stBindings;
-   printf("%zu\n", newSize);
-   SymTable_map(oSymTable, putMap, newSymTable);
    
-   free(oSymTable);
-   return newSymTable;
+   SymTable_map(oSymTable, putMap, newSymTable);
+   oSymTable->stBucketIndex = newSize;
+   oldHashTable = oSymTable->psFirstNode;
+   oSymTable->psFirstNode = newSymTable->psFirstNode;
+   free(newSymTable);
+
+   
+   for(i=0;i<bucketSizes[oSymTable->stBucketIndex--];i++){
+        psCurrentLink = oldHashTable[i];
+        while(psCurrentLink != NULL){
+             psNextLink = psCurrentLink->psNextNode;
+             free((char*)psCurrentLink->pcKey);
+             free(psCurrentLink);
+             psCurrentLink = psNextLink;
+        }
+   }
+   free(oldHashTable);
+   
+
 }
 /*--------------------------------------------------------------------*/
 
@@ -138,11 +155,10 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
-   if(oSymTable->stBindings+1>bucketSizes[7]){
-        return 0;
-   }
-   if(oSymTable->stBindings+1>bucketSizes[oSymTable->stBucketIndex]){
-        oSymTable =SymTable_grow(oSymTable);
+   
+   if(oSymTable->stBindings+1>bucketSizes[oSymTable->stBucketIndex]&&
+        oSymTable->stBindings+1<bucketSizes[7]){
+        SymTable_grow(oSymTable);
    }
    
 
