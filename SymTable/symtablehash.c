@@ -115,7 +115,7 @@ int SymTable_contains(SymTable_T oSymTable, const char *pcKey){
 
 int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    size_t hashValue;
-   struct LinkedListNode *psTempNode, *psLastFirst, *psNewNode;
+   struct LinkedListNode *psTempNode, *psLastFirst, psNewNode;
    char *pcKeyCopy;
    
    assert(oSymTable != NULL);
