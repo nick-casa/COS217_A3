@@ -52,22 +52,40 @@ struct SymTable{
    size_t stBucketIndex;
 };
 
+
+/*--------------------------------------------------------------------*/
+static SymTable_T SymTable_larger(size_t size){
+   SymTable_T oSymTable;
+   oSymTable = (SymTable_T)malloc(sizeof(struct SymTable));
+
+   if (oSymTable == NULL) return NULL;
+        
+   oSymTable->psFirstNode = calloc(size,sizeof(struct LinkedListNode*));
+   oSymTable->stBindings = 0;
+   oSymTable->stBucketIndex = 0;
+   
+   return oSymTable;
+}
 /*--------------------------------------------------------------------*/
 static void putMap(const char *pcKey, void *pvValue, void *pvExtra){
-
+   SymTable_put(pvExtra, pcKey, pvValue);
 }
 /*--------------------------------------------------------------------*/
 
-static int SymTable_grow(SymTable_T oSymTable){
+static SymTable_T SymTable_grow(SymTable_T oSymTable){
+   SymTable_T newSymTable;
    size_t newSize;
-   SymTable_T oldSymTable;
-   assert(oSymTable != NULL);
+
+   newSize = oSymTable->stBucketIndex;
+   newSize++;
+   newSymTable = SymTable_larger(bucketSizes[newSize]);
+   newSymTable->stBucketIndex = newSize;
+   newSymTable->stBindings = oSymTable->stBindings;
+   printf("%zu\n", newSize);
+   SymTable_map(oSymTable, putMap, newSymTable);
    
-   oldSymTable = oSymTable;
-   newSize = oSymTable->stBucketIndex++;
-   
-   
-   return 1;
+   free(oSymTable);
+   return newSymTable;
 }
 /*--------------------------------------------------------------------*/
 
@@ -115,11 +133,18 @@ int SymTable_contains(SymTable_T oSymTable, const char *pcKey){
 
 int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    size_t hashValue;
-   struct LinkedListNode *psTempNode, *psLastFirst, *psNewNode;
+   struct LinkedListNode *psLastFirst, *psNewNode;
    char *pcKeyCopy;
    
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
+   if(oSymTable->stBindings+1>bucketSizes[7]){
+        return 0;
+   }
+   if(oSymTable->stBindings+1>bucketSizes[oSymTable->stBucketIndex]){
+        oSymTable =SymTable_grow(oSymTable);
+   }
+   
 
    hashValue = SymTable_hash(pcKey,bucketSizes[oSymTable->stBucketIndex]);
    
