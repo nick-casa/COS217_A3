@@ -125,6 +125,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    
    if(oSymTable->psFirstNode[hashValue] != NULL)
         psTempNode = oSymTable->psFirstNode[hashValue];
+    else psTempNode = NULL;
 
    if(psTempNode == NULL){
      pcKeyCopy = (char*)malloc(strlen(pcKey)+1);
