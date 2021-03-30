@@ -87,7 +87,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    psNewNode = oSymTable->psFirstNode;
    
    if(!psNewNode){
-     pcKeyCopy = (char*)malloc(strlen(pcKey));
+     pcKeyCopy = (char*)malloc(strlen(pcKey)+1);
      if (pcKeyCopy == NULL)
       return 0;
      strcpy(pcKeyCopy,(char*)pcKey);
@@ -110,7 +110,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
        else psNewNode = psNewNode->psNextNode;   
      }
    }
-   pcKeyCopy = (char*)malloc(strlen(pcKey));
+   pcKeyCopy = (char*)malloc(strlen(pcKey)+1);
    if (pcKeyCopy == NULL)
       return 0;
    strcpy(pcKeyCopy,(char*)pcKey);
