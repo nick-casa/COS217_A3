@@ -274,10 +274,12 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
    assert(pcKey != NULL);
 
    hashValue = SymTable_hash(pcKey,bucketSizes[oSymTable->stBucketIndex]);
+   
    if(oSymTable->psFirstNode[hashValue]){
         psTempNode = oSymTable->psFirstNode[hashValue];
         psLastNode = psTempNode;
    }
+   
    else psTempNode = NULL;
 
    
@@ -285,7 +287,8 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
      if(strcmp(psTempNode->pcKey,pcKey) == 0){
         if(psTempNode->psNextNode){
           pvValue = psTempNode->pvValue;
-          if(oSymTable->psFirstNode[hashValue] == psLastNode) oSymTable->psFirstNode[hashValue] = psTempNode->psNextNode;
+          if(psTempNode == psLastNode)
+                oSymTable->psFirstNode[hashValue] = psTempNode->psNextNode;
           else psLastNode->psNextNode = psTempNode->psNextNode;
           free((char*)psTempNode->pcKey);
           free(psTempNode);
@@ -295,12 +298,12 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
         else{
           pvValue = psTempNode->pvValue;
           psTempNode->pvValue = NULL;
+          if(oSymTable->psFirstNode[hashValue] == psLastNode) 
+                oSymTable->psFirstNode[hashValue] = NULL;
+          else psLastNode->psNextNode = NULL;
           free((char*)psTempNode->pcKey);
           free(psTempNode);
           oSymTable->stBindings--;
-          psTempNode = NULL;
-          if(oSymTable->psFirstNode[hashValue] == psLastNode) oSymTable->psFirstNode[hashValue] = NULL;
-          else psLastNode->psNextNode = NULL;
           return (void*)pvValue;   
         }
      }
