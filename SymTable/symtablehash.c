@@ -74,9 +74,13 @@ SymTable_T SymTable_new(void){
    return oSymTable;
 }
 
+/*--------------------------------------------------------------------*/
+
 size_t SymTable_getLength(SymTable_T oSymTable){
     return oSymTable->stBindings;
 }
+
+/*--------------------------------------------------------------------*/
 
 int SymTable_contains(SymTable_T oSymTable, const char *pcKey){
    size_t hashValue;
@@ -97,6 +101,8 @@ int SymTable_contains(SymTable_T oSymTable, const char *pcKey){
    return 0;
 
 }
+
+/*--------------------------------------------------------------------*/
 
 int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    size_t hashValue;
@@ -152,6 +158,8 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    return 1;
 }
 
+/*--------------------------------------------------------------------*/
+
 void SymTable_free(SymTable_T oSymTable){
    struct LinkedListNode *psTempNode, *psNextLink;
    struct HashTableNode *psHashNode;
@@ -181,6 +189,8 @@ void SymTable_free(SymTable_T oSymTable){
    free(oSymTable);
 }
 
+/*--------------------------------------------------------------------*/
+
 void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    size_t hashValue;
    struct LinkedListNode *psTempNode;
@@ -205,6 +215,8 @@ void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvVa
    return NULL;    
 }
 
+/*--------------------------------------------------------------------*/
+
 void *SymTable_get(SymTable_T oSymTable, const char *pcKey){
    size_t hashValue;
    struct LinkedListNode *psTempNode;
@@ -224,6 +236,8 @@ void *SymTable_get(SymTable_T oSymTable, const char *pcKey){
    return NULL;      
 }
 
+/*--------------------------------------------------------------------*/
+
 void SymTable_map(SymTable_T oSymTable, 
     void (*pfApply)(const char *pcKey, void *pvValue, void *pvExtra), 
     const void *pvExtra){
@@ -240,6 +254,8 @@ void SymTable_map(SymTable_T oSymTable,
         }
    }
 }
+
+/*--------------------------------------------------------------------*/
 
 void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
    size_t hashValue;
@@ -286,9 +302,8 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
      }
    }
    return NULL;
-   
-   
 }
+
 /*-------------------------------------------------------------------- 
 
 static int Stack_grow(Stack_T oStack)
