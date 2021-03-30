@@ -86,14 +86,19 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
 
    psNewNode = oSymTable->psFirstNode;
    
+   /* If the oSymTable is empty */
    if(!psNewNode){
+     /* Allocate space for defensive key */
      pcKeyCopy = (char*)malloc(strlen(pcKey)+1);
      if (pcKeyCopy == NULL)
       return 0;
+     /* Copy key to allocated memory */
      strcpy(pcKeyCopy,(char*)pcKey);
 
+     /* Allocate space for node */
      pcInsNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
      if (pcInsNode == NULL){
+      /* If there is no space, free key */
       free(pcKeyCopy);
       return 0;
      }
@@ -104,24 +109,35 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
      oSymTable->iBindings++;
      return 1;
    }
+   /* If the oSymTable is not empty */
    else{
+     /* Traverse entire linked list */
      while(psNewNode!= NULL){
+       /* Return 0 of key is in linked list*/
        if(strcmp(psNewNode->pcKey,pcKey)==0) return 0;
        else psNewNode = psNewNode->psNextNode;   
      }
    }
+   /* Symtable is not empty and key is not in list. */
+   /* Allocate space for defensive key */
    pcKeyCopy = (char*)malloc(strlen(pcKey)+1);
    if (pcKeyCopy == NULL)
       return 0;
+   /* Copy key to allocated memory */
    strcpy(pcKeyCopy,(char*)pcKey);
 
+   /* Allocate space for node */
    pcInsNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
    if (pcInsNode == NULL){
+      /* If there is no space, free key */
       free(pcKeyCopy);
       return 0;
    }
+
+   /* Insert values into node */
    pcInsNode->pcKey = pcKeyCopy;
    pcInsNode->pvValue = pvValue;
+   /* Insert node into linked list */
    pcInsNode->psNextNode = oSymTable->psFirstNode;
    oSymTable->iBindings++; 
    oSymTable->psFirstNode = pcInsNode;
