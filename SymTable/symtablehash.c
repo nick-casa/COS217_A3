@@ -180,16 +180,16 @@ void SymTable_free(SymTable_T oSymTable){
 
         
         while(oSymTable->psFirstNode[i]){
-          if((oSymTable->psFirstNode[i]->psNextNode){
+          if(oSymTable->psFirstNode[i]->psNextNode){
              psNextLink = oSymTable->psFirstNode[i]->psNextNode;
              free((char*)oSymTable->psFirstNode[i]->pcKey);
              free(oSymTable->psFirstNode[i]);
              oSymTable->psFirstNode[i] = psNextLink;
           }
           else{
-            free((char*)(oSymTable->psFirstNode[i]->pcKey);
-            free((oSymTable->psFirstNode[i]);  
-            (oSymTable->psFirstNode[i] = NULL; 
+            free((char*)oSymTable->psFirstNode[i]->pcKey);
+            free(oSymTable->psFirstNode[i]);  
+            oSymTable->psFirstNode[i] = NULL; 
           }
         }
    }
