@@ -287,36 +287,37 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
         psLastNode = psTempNode;
    }
    else psTempNode = NULL;
-   if(psTempNode != NULL){
-     while(psTempNode){
-       if(strcmp(psTempNode->pcKey,pcKey) == 0){
-          if(psTempNode->psNextNode){
-            pvValue = psTempNode->pvValue;
-            if(oSymTable->psFirstNode[hashValue] == psLastNode) oSymTable->psFirstNode[hashValue] = psTempNode->psNextNode;
-            else psLastNode->psNextNode = psTempNode->psNextNode;
-            free((char*)psTempNode->pcKey);
-            free(psTempNode);
-            oSymTable->stBindings--;
-            return (void*)pvValue;
-          }
-          else{
-            pvValue = psTempNode->pvValue;
-            psTempNode->pvValue = NULL;
-            free((char*)psTempNode->pcKey);
-            free(psTempNode);
-            oSymTable->stBindings--;
-            psTempNode = NULL;
-            if(oSymTable->psFirstNode[hashValue] == psLastNode) oSymTable->psFirstNode[hashValue] = NULL;
-            else psLastNode->psNextNode = NULL;
-            return (void*)pvValue;   
-          }
-       }
-       else{
-          psLastNode = psTempNode;
-          psTempNode = psTempNode->psNextNode;
-       }
+
+   
+   while(psTempNode){
+     if(strcmp(psTempNode->pcKey,pcKey) == 0){
+        if(psTempNode->psNextNode){
+          pvValue = psTempNode->pvValue;
+          if(oSymTable->psFirstNode[hashValue] == psLastNode) oSymTable->psFirstNode[hashValue] = psTempNode->psNextNode;
+          else psLastNode->psNextNode = psTempNode->psNextNode;
+          free((char*)psTempNode->pcKey);
+          free(psTempNode);
+          oSymTable->stBindings--;
+          return (void*)pvValue;
+        }
+        else{
+          pvValue = psTempNode->pvValue;
+          psTempNode->pvValue = NULL;
+          free((char*)psTempNode->pcKey);
+          free(psTempNode);
+          oSymTable->stBindings--;
+          psTempNode = NULL;
+          if(oSymTable->psFirstNode[hashValue] == psLastNode) oSymTable->psFirstNode[hashValue] = NULL;
+          else psLastNode->psNextNode = NULL;
+          return (void*)pvValue;   
+        }
+     }
+     else{
+        psLastNode = psTempNode;
+        psTempNode = psTempNode->psNextNode;
      }
    }
+   
    return NULL;
 }
 /*
