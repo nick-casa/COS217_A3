@@ -179,7 +179,7 @@ void SymTable_free(SymTable_T oSymTable){
    for(i=0;i<bucketSizes[oSymTable->stBucketIndex];i++){
 
         
-        while((oSymTable->psFirstNode[i]){
+        while(oSymTable->psFirstNode[i]){
           if((oSymTable->psFirstNode[i]->psNextNode){
              psNextLink = oSymTable->psFirstNode[i]->psNextNode;
              free((char*)oSymTable->psFirstNode[i]->pcKey);
