@@ -54,7 +54,7 @@ struct SymTable{
 
 
 /*--------------------------------------------------------------------*/
-static SymTable_T SymTable_larger(size_t size){
+static SymTable_T SymTable_larger(size_t size, size_t bucketIndex){
    SymTable_T oSymTable;
    oSymTable = (SymTable_T)malloc(sizeof(struct SymTable));
 
@@ -62,7 +62,7 @@ static SymTable_T SymTable_larger(size_t size){
         
    oSymTable->psFirstNode = calloc(size,sizeof(struct LinkedListNode*));
    oSymTable->stBindings = 0;
-   oSymTable->stBucketIndex = 0;
+   oSymTable->stBucketIndex = bucketIndex;
    
    return oSymTable;
 }
@@ -81,8 +81,7 @@ static void SymTable_grow(SymTable_T oSymTable){
    assert(oSymTable != NULL);
 
    newSize = ++oSymTable->stBucketIndex;
-   newSymTable = SymTable_larger(bucketSizes[newSize]);
-   newSymTable->stBucketIndex = newSize;
+   newSymTable = SymTable_larger(bucketSizes[newSize], newSize);
    
    SymTable_map(oSymTable, putMap, newSymTable);
    oSymTable->stBucketIndex = newSize;
@@ -91,7 +90,7 @@ static void SymTable_grow(SymTable_T oSymTable){
    free(newSymTable);
 
    
-   for(i=0;i<bucketSizes[oSymTable->stBucketIndex--];i++){
+   for(i=0;i<bucketSizes[newSize--];i++){
         psCurrentLink = oldHashTable[i];
         while(psCurrentLink != NULL){
              psNextLink = psCurrentLink->psNextNode;
