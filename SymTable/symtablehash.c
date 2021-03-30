@@ -187,7 +187,7 @@ void SymTable_free(SymTable_T oSymTable){
              psNextLink = psTempNode->psNextNode;
              free((char*)psTempNode->pcKey);
              free(psTempNode);
-             psTempNode = = psNextLink; 
+             psTempNode = psNextLink; 
           }
           else{
             free((char*)psTempNode->pcKey);
