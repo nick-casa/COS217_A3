@@ -132,7 +132,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
      if (pcKeyCopy == NULL) return 0;
      strcpy(pcKeyCopy,(char*)pcKey);
 
-     psNewNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode*));
+     psNewNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
      if (psNewNode == NULL){
       free(pcKeyCopy);
       return 0;
@@ -154,7 +154,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
      if (pcKeyCopy == NULL) return 0;
      strcpy(pcKeyCopy,(char*)pcKey);
 
-     psNewNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode*));
+     psNewNode = (struct LinkedListNode*)malloc(sizeof(struct LinkedListNode));
      if (psNewNode == NULL){
       free(pcKeyCopy);
       return 0;
