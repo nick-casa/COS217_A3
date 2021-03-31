@@ -251,8 +251,6 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   while(psTempNode){
      /* If the search target is hit */
      if(strcmp(psTempNode->pcKey,pcKey) == 0){
-        /* Check if node has a next node */
-        if(psTempNode->psNextNode){
           pvValue = psTempNode->pvValue;
           /* if temp node is the first in the linked list */
           if(oSymTable->psFirstNode == psTempNode)
@@ -262,20 +260,6 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
           free(psTempNode);
           oSymTable->iBindings--;
           return (void*)pvValue;
-        }
-        /* Else, it is first node */
-        else{
-          pvValue = psTempNode->pvValue;
-          psTempNode->pvValue = NULL;
-          /* if temp node is the first in the linked list */
-          if(oSymTable->psFirstNode == psTempNode) 
-                oSymTable->psFirstNode = NULL;
-          else psLastNode->psNextNode = NULL;
-          free((char*)psTempNode->pcKey);
-          free(psTempNode);
-          oSymTable->iBindings--;
-          return (void*)pvValue;   
-        }
      }
      else{
         psLastNode = psTempNode;
