@@ -33,7 +33,7 @@ struct LinkedListNode{
    /* The key. */
    const char *pcKey;
    /* Pointer to the value. */
-   const void *pvValue;
+   void *pvValue;
 
    /* The address of the next LinkedListNode. */
    struct LinkedListNode *psNextNode;
@@ -65,7 +65,7 @@ static struct LinkedListNode** newHash(size_t size){
    return oHashTable;
 }
 /*--------------------------------------------------------------------*/
-static int putMap(const char *pcKey, const void *pvValue, 
+static int putMap(const char *pcKey, void *pvValue, 
         struct LinkedListNode **pvHashTable, size_t ubucketIndex){
    
    size_t hashValue;
@@ -74,9 +74,6 @@ static int putMap(const char *pcKey, const void *pvValue,
 
    hashValue = SymTable_hash(pcKey,bucketSizes[ubucketIndex]);
    
-   if(pvHashTable[hashValue]) psTempNode = pvHashTable[hashValue];
-   else return 0;
-
    while(psTempNode){
         if(strcmp(psTempNode->pcKey,pcKey) == 0) return 0;
         else psTempNode = psTempNode->psNextNode;
@@ -211,7 +208,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    }
 
    psNewNode->pcKey = pcKeyCopy;
-   psNewNode->pvValue = pvValue;
+   psNewNode->pvValue = (void*)pvValue;
    psLastFirst = oSymTable->psFirstNode[hashValue];
    psNewNode->psNextNode = psLastFirst;
    oSymTable->psFirstNode[hashValue] = psNewNode;
@@ -245,7 +242,7 @@ void SymTable_free(SymTable_T oSymTable){
 void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    size_t hashValue;
    struct LinkedListNode *psTempNode;
-   const void *pvTempValue;
+   void *pvTempValue;
 
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
@@ -258,8 +255,8 @@ void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvVa
    while(psTempNode){
         if(strcmp(psTempNode->pcKey,pcKey) == 0){
                 pvTempValue = psTempNode->pvValue;
-                psTempNode->pvValue = pvValue;
-                return (void*) pvTempValue;
+                psTempNode->pvValue = (void*)pvValue;
+                return pvTempValue;
         }
         else psTempNode = psTempNode->psNextNode;
    }
@@ -281,7 +278,7 @@ void *SymTable_get(SymTable_T oSymTable, const char *pcKey){
    else return NULL; 
 
    while(psTempNode){
-        if(strcmp(psTempNode->pcKey,pcKey) == 0) return (void*) psTempNode->pvValue;
+        if(strcmp(psTempNode->pcKey,pcKey) == 0) return psTempNode->pvValue;
         else psTempNode = psTempNode->psNextNode;
    }
    return NULL;      
@@ -304,7 +301,7 @@ void SymTable_map(SymTable_T oSymTable,
         else psTempNode = NULL;
 
         while(psTempNode){
-          (*pfApply)(psTempNode->pcKey, (void*)psTempNode->pvValue,(void*) pvExtra);
+          (*pfApply)(psTempNode->pcKey,  psTempNode->pvValue,(void*) pvExtra);
           psTempNode = psTempNode->psNextNode;
         }
    }
@@ -315,7 +312,7 @@ void SymTable_map(SymTable_T oSymTable,
 void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
    size_t hashValue;
    struct LinkedListNode *psTempNode, *psLastNode;
-   const void* pvValue;
+   void* pvValue;
    
    assert(oSymTable != NULL);
    assert(pcKey != NULL);
@@ -339,7 +336,7 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
           free((char*)psTempNode->pcKey);
           free(psTempNode);
           oSymTable->stBindings--;
-          return (void*)pvValue;
+          return pvValue;
         }
         else{
           pvValue = psTempNode->pvValue;
@@ -350,7 +347,7 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
           free((char*)psTempNode->pcKey);
           free(psTempNode);
           oSymTable->stBindings--;
-          return (void*)pvValue;   
+          return pvValue;   
         }
      }
      else{
@@ -363,53 +360,94 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
 }
 /*
 int main(void){
-     SymTable_T oSymTable;
-   int iSuccessful;
-   char acCenterField[] = "pitcher";
-   char acCatcher[] = "catcher";
-   char acFirstBase[] = "first base";
-   char acRightField[] = "second base";
-   char *pcValue;
+   enum {MAX_KEY_LENGTH = 10};
 
+   SymTable_T oSymTable;
+   SymTable_T oSymTableSmall;
+   char acKey[MAX_KEY_LENGTH];
+   char *pcValue;
+   int i;
+   int iSmall;
+   int iLarge;
+   int iSuccessful;
+   size_t uLength = 0;
+   size_t uLength2;
+
+   oSymTableSmall = SymTable_new();
+   iSuccessful = SymTable_put(oSymTableSmall, "xxx", "xxx");
+   iSuccessful = SymTable_put(oSymTableSmall, "yyy", "yyy");
    
    oSymTable = SymTable_new();
    
-   iSuccessful = SymTable_put(oSymTable, "250", acCenterField);
-   printf("%zu\n", SymTable_hash("250",bucketSizes[oSymTable->stBucketIndex]));
-   iSuccessful = SymTable_put(oSymTable, "469", acCatcher);
-   printf("%zu\n", SymTable_hash("469",bucketSizes[oSymTable->stBucketIndex]));
-   iSuccessful = SymTable_put(oSymTable, "947", acFirstBase);
-   printf("%zu\n", SymTable_hash("947",bucketSizes[oSymTable->stBucketIndex]));
-   iSuccessful = SymTable_put(oSymTable, "1303", acRightField);
-   printf("%zu\n", SymTable_hash("1303",bucketSizes[oSymTable->stBucketIndex]));
-   iSuccessful = SymTable_put(oSymTable, "2016", acRightField);
-   printf("%zu\n", SymTable_hash("2016",bucketSizes[oSymTable->stBucketIndex]));
-   
-   
-   pcValue = SymTable_get(oSymTable, "250");
-   printf("%s\n", pcValue);
-   pcValue = SymTable_get(oSymTable, "469");
-   printf("%s\n", pcValue);
-   pcValue = SymTable_get(oSymTable, "947");
-   printf("%s\n", pcValue);
-   pcValue = SymTable_get(oSymTable, "1303");
-   printf("%s\n", pcValue);
-   pcValue = SymTable_get(oSymTable, "2016");
-   printf("%s\n", pcValue);
+    for (i = 0; i < 520; i++){
+      sprintf(acKey, "%d", i);
+      pcValue = (char*)malloc(sizeof(char) * (strlen(acKey) + 1));
+      strcpy(pcValue, acKey);
+      iSuccessful = SymTable_put(oSymTable, acKey, pcValue);
+      uLength = SymTable_getLength(oSymTable);
+   }
 
-   pcValue = SymTable_remove(oSymTable, "947");
-   printf("Removed: %s\n", pcValue);   
-   pcValue = SymTable_remove(oSymTable, "2016");
-   printf("Removed: %s\n", pcValue);
-   pcValue = SymTable_remove(oSymTable, "250");
-   printf("Removed: %s\n", pcValue);
-   pcValue = SymTable_get(oSymTable, "469");
-   printf("Got: %s\n", pcValue);
+   iSmall = 0;
+   iLarge = 520 - 1;
+   while (iSmall < iLarge)
+   {
 
-   pcValue = SymTable_get(oSymTable, "1303");
-   printf("Got: %s\n", pcValue);
+      sprintf(acKey, "%d", iSmall);
+      pcValue = (char*)SymTable_get(oSymTable, acKey);
+      iSmall++;
+
+      sprintf(acKey, "%d", iLarge);
+      pcValue = (char*)SymTable_get(oSymTable, acKey);
+      iLarge--;
+   }
+
+   if (iSmall == iLarge)
+   {
+      sprintf(acKey, "%d", iSmall);
+      pcValue = (char*)SymTable_get(oSymTable, acKey);
+   }
+
+
+   iSmall = 0;
+   iLarge = 520 - 1;
+   while (iSmall < iLarge)
+   {
+
+      sprintf(acKey, "%d", iSmall);
+      pcValue = (char*)SymTable_remove(oSymTable, acKey);
+      printf("%s\n",pcValue );
+      
+      free(pcValue);
+      uLength--;
+      uLength2 = SymTable_getLength(oSymTable);
+      iSmall++;
+
+      sprintf(acKey, "%d", iLarge);
+      pcValue = (char*)SymTable_remove(oSymTable, acKey);
+      free(pcValue);
+      uLength--;
+      uLength2 = SymTable_getLength(oSymTable);
+      iLarge--;
+   }
+
+   if (iSmall == iLarge)
+   {
+      sprintf(acKey, "%d", iSmall);
+      pcValue = (char*)SymTable_remove(oSymTable, acKey);
+      printf("%s\n",pcValue );
+      free(pcValue);
+      uLength--;
+      uLength2 = SymTable_getLength(oSymTable);
+   }
+
+
+   pcValue = (char*)SymTable_get(oSymTableSmall, "xxx");
+   pcValue = (char*)SymTable_get(oSymTableSmall, "yyy");
+   
 
    SymTable_free(oSymTable);
-  }
-)
+   SymTable_free(oSymTableSmall);
+
+
+}
 */
