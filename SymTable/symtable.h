@@ -32,16 +32,14 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue);
 
 
 /*--------------------------------------------------------------------*/
-/**/
-/**/
-/**/
+/* SymTable_free takes a SymTable_T as an argument and clears all     */
+/* associated memory in the heap.                                     */
 /*--------------------------------------------------------------------*/
 void SymTable_free(SymTable_T oSymTable);
 
 /*--------------------------------------------------------------------*/
-/**/
-/**/
-/**/
+/* SymTable_getLength takes a SymTable_T as an argument and returns   */
+/* the amount of bindings within the symbol table.                    */
 /*--------------------------------------------------------------------*/
 size_t SymTable_getLength(SymTable_T oSymTable);
 

@@ -231,65 +231,48 @@ void SymTable_map(SymTable_T oSymTable,
 
 void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   
-  struct LinkedListNode *psCheckNode,*psTempNode;
+  struct LinkedListNode *psLastNode,*psTempNode;
   int comp; 
   const void* pvValue;
   
   assert(oSymTable != NULL);
   assert(pcKey != NULL);
   
-  psCheckNode = oSymTable->psFirstNode;
-  
-  if(psCheckNode == NULL) return NULL;  
-
-  /* Check whether the first node is same as removed key*/
-  comp = strcmp(psCheckNode->pcKey,pcKey);
-
-  if(comp == 0 && !psCheckNode->psNextNode){
-    pvValue = psCheckNode->pvValue;
-    free((char*)psCheckNode->pcKey);
-    free(psCheckNode);
-    oSymTable->psFirstNode = NULL;
-    oSymTable->iBindings = 0;
-    return (void*)pvValue;
+  if(oSymTable->psFirstNodehashValue){
+        psTempNode = oSymTable->psFirstNode;
+        psLastNode = psTempNode;
   }
-  
-  else if(comp == 0 && psCheckNode->psNextNode){
-    pvValue = psCheckNode->pvValue;
-    psTempNode = psCheckNode;
-    oSymTable->iBindings--;
-    oSymTable->psFirstNode = psTempNode->psNextNode;
-    free((char*)psTempNode->pcKey);
-    free(psTempNode);
-    return (void*) pvValue; 
+  else return NULL;  
 
-  }
-  
-  while(psCheckNode){
-    /* Case 1.0 : psCheckNode->psNextNode exists and is key  */
-    if(psCheckNode->psNextNode && strcmp(psCheckNode->psNextNode->pcKey,pcKey) == 0 ){
-      /*  Case 1.1 : psCheckNode->psNextNode->psNextNode exists     */
-      if(psCheckNode->psNextNode->psNextNode){
-        pvValue = psCheckNode->psNextNode->pvValue;
-        psTempNode = psCheckNode->psNextNode->psNextNode;
-        free((char*)psCheckNode->psNextNode->pcKey);
-        free(psCheckNode->psNextNode);
-        psCheckNode->psNextNode = psTempNode;
-        oSymTable->iBindings--;
-        return (void*)pvValue; 
-      }
-      /*  Case 1.2 : psCheckNode->psNextNode->psNextNode does not exists  */
-      else{
-        pvValue = psCheckNode->psNextNode->pvValue;
-        free((char*)psCheckNode->psNextNode->pcKey);
-        free(psCheckNode->psNextNode);
-        psCheckNode->psNextNode = NULL;
-        oSymTable->iBindings--;
-        return (void*)pvValue; 
-      }
-    }
-    else psCheckNode = psCheckNode->psNextNode;   
-  }    
+  while(psTempNode){
+     if(strcmp(psTempNode->pcKey,pcKey) == 0){
+        if(psTempNode->psNextNode){
+          pvValue = psTempNode->pvValue;
+          if(oSymTable->psFirstNode == psTempNode)
+                oSymTable->psFirstNode = psTempNode->psNextNode;
+          else psLastNode->psNextNode = psTempNode->psNextNode;
+          free((char*)psTempNode->pcKey);
+          free(psTempNode);
+          oSymTable->stBindings--;
+          return (void*)pvValue;
+        }
+        else{
+          pvValue = psTempNode->pvValue;
+          psTempNode->pvValue = NULL;
+          if(oSymTable->psFirstNode == psTempNode) 
+                oSymTable->psFirstNode = NULL;
+          else psLastNode->psNextNode = NULL;
+          free((char*)psTempNode->pcKey);
+          free(psTempNode);
+          oSymTable->stBindings--;
+          return (void*)pvValue;   
+        }
+     }
+     else{
+        psLastNode = psTempNode;
+        psTempNode = psTempNode->psNextNode;
+     }
+   }
   
   return NULL;
 }

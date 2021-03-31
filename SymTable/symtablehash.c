@@ -61,6 +61,10 @@ static SymTable_T SymTable_larger(size_t size, size_t bucketIndex){
    if (oSymTable == NULL) return NULL;
         
    oSymTable->psFirstNode = calloc(size,sizeof(struct LinkedListNode*));
+   if(oSymTable->psFirstNode == NULL){
+        free(oSymTable);
+        return NULL;
+   }
    oSymTable->stBindings = 0;
    oSymTable->stBucketIndex = bucketIndex;
    
@@ -82,6 +86,7 @@ static void SymTable_grow(SymTable_T oSymTable){
 
    newSize = oSymTable->stBucketIndex;
    newSize++;
+   printf("%zu\n", newSize);
    newSymTable = SymTable_larger(bucketSizes[newSize], newSize);
    
    SymTable_map(oSymTable, putMap, newSymTable);
@@ -90,6 +95,8 @@ static void SymTable_grow(SymTable_T oSymTable){
    oSymTable->psFirstNode = newSymTable->psFirstNode;
    
    SymTable_free(newSymTable);
+   
+   printf("%zu\n", newSize);     
    for(i=0;i<bucketSizes[newSize--];i++){
         psCurrentLink = oldHashTable[i];
         while(psCurrentLink != NULL){
@@ -110,8 +117,13 @@ SymTable_T SymTable_new(void){
    if (oSymTable == NULL) return NULL;
         
    oSymTable->psFirstNode = calloc(bucketSizes[0],sizeof(struct LinkedListNode*));
+   if(oSymTable->psFirstNode == NULL){
+        free(oSymTable);
+        return NULL;
+   }
    oSymTable->stBindings = 0;
    oSymTable->stBucketIndex = 0;
+
    
    return oSymTable;
 }
@@ -158,7 +170,6 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
         SymTable_grow(oSymTable);
    }
    
-
    hashValue = SymTable_hash(pcKey,bucketSizes[oSymTable->stBucketIndex]);
    
    if(SymTable_contains(oSymTable, pcKey)) return 0;
