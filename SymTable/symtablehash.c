@@ -45,17 +45,17 @@ struct LinkedListNode{
 /* A SymTable is a structure that points to the first LinkedListNode. */
 struct SymTable{
 
-   /* The address of the array of LinkedLists. */
+   /* The address of the array of LinkedListNode */
    struct LinkedListNode **psFirstNode;
-   /* Amount of bindings in the SymTable */
+   /* stBindings holds the amount of bindings in the SymTable */
    size_t stBindings;
-    /* index Bucket Size */
+    /* stBucketIndex holds the index of the bucket size */
    size_t stBucketIndex;
 };
 
 
 /*--------------------------------------------------------------------*/
-static struct LinkedListNode** newHash(size_t size){
+static struct LinkedListNode** SymTable_newHash(size_t size){
    struct LinkedListNode** oHashTable;
    
    oHashTable = calloc(size,sizeof(struct LinkedListNode*));
@@ -66,7 +66,7 @@ static struct LinkedListNode** newHash(size_t size){
    return oHashTable;
 }
 /*--------------------------------------------------------------------*/
-static int putMap(const char *pcKey, void *pvValue, 
+static int SymTable_putMap(const char *pcKey, void *pvValue, 
         struct LinkedListNode **pvHashTable, size_t ubucketIndex){
    
    size_t hashValue;
@@ -112,14 +112,14 @@ static void SymTable_grow(SymTable_T oSymTable){
 
    oldSize = oSymTable->stBucketIndex;
    newSize = oldSize+1;
-   newHashTable = newHash(bucketSizes[newSize]);
+   newHashTable = SymTable_newHash(bucketSizes[newSize]);
    if(newHashTable != NULL){
       oldHashTable = oSymTable->psFirstNode;
       for(i=0;i<bucketSizes[oldSize];i++){
            psCurrentLink = oldHashTable[i];
            while(psCurrentLink != NULL){
                    psNextLink = psCurrentLink->psNextNode;
-                   putMap(psCurrentLink->pcKey, 
+                   SymTable_putMap(psCurrentLink->pcKey, 
                           psCurrentLink->pvValue, 
                           newHashTable, newSize);
                    
