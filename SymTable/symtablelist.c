@@ -236,7 +236,6 @@ void SymTable_map(SymTable_T oSymTable,
 void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
   
   struct LinkedListNode *psLastNode,*psTempNode;
-  int comp; 
   const void* pvValue;
   
   assert(oSymTable != NULL);
