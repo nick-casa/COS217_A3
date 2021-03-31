@@ -62,7 +62,7 @@ disagreements with them? Copy the splint warnings here, and express your
 disagreement after each warning. If there are no warnings, then write
 "None."
 
-
+None
 
 ------------------------------------------------------------------------
 What warnings does critTer generate on symtablelist.c, and what are your
@@ -70,6 +70,14 @@ disagreements with them? Copy the critTer warnings here, and express
 your disagreement after each warning. If there are no warnings, then
 write "None."
 
+   symtablelist.c: line 81: medium priority:
+   Do you want to validate 'pvValue' through an assert?
+
+   symtablelist.c: line 192: medium priority:
+   Do you want to validate 'pvValue' through an assert?
+
+   symtablelist.c: line 219: medium priority:
+   Do you want to validate 'pvExtra' through an assert?
 
 
 ------------------------------------------------------------------------
@@ -86,6 +94,17 @@ disagreements with them? Copy the critTer warnings here, and express
 your disagreement after each warning. If there are no warnings, then
 write "None."
 
+   symtablehash.c: line 83: medium priority:
+   Do you want to validate 'pvValue' through an assert?
+
+   symtablehash.c: line 206: medium priority:
+   Do you want to validate 'pvValue' through an assert?
+
+   symtablehash.c: line 265: medium priority:
+   Do you want to validate 'pvValue' through an assert?
+
+   symtablehash.c: line 314: medium priority:
+   Do you want to validate 'pvExtra' through an assert?
 
 
 ------------------------------------------------------------------------
