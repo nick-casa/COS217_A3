@@ -74,6 +74,9 @@ static int putMap(const char *pcKey, void *pvValue,
 
    hashValue = SymTable_hash(pcKey,bucketSizes[ubucketIndex]);
    
+   if(pvHashTable[hashValue]) psTempNode = pvHashTable[hashValue];
+   else psTempNode = NULL;
+   
    while(psTempNode){
         if(strcmp(psTempNode->pcKey,pcKey) == 0) return 0;
         else psTempNode = psTempNode->psNextNode;
@@ -103,7 +106,6 @@ static void SymTable_grow(SymTable_T oSymTable){
    struct LinkedListNode **oldHashTable,**newHashTable;
    struct LinkedListNode *psNextLink, *psCurrentLink;
    size_t oldSize, newSize, i;
-   int success;
 
    assert(oSymTable != NULL);
 
@@ -119,6 +121,7 @@ static void SymTable_grow(SymTable_T oSymTable){
                    putMap(psCurrentLink->pcKey, 
                           psCurrentLink->pvValue, 
                           newHashTable, newSize);
+                   
                    free((char*)psCurrentLink->pcKey);
                    free(psCurrentLink);
                    psCurrentLink = psNextLink;
