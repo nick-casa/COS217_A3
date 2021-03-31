@@ -77,7 +77,8 @@ size_t SymTable_getLength(SymTable_T oSymTable){
 
 /*--------------------------------------------------------------------*/
 
-int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
+int SymTable_put(SymTable_T oSymTable, const char *pcKey, 
+  const void *pvValue){
    struct LinkedListNode *psNewNode, *pcInsNode;
    char* pcKeyCopy;
    
@@ -157,7 +158,8 @@ void *SymTable_get(SymTable_T oSymTable, const char *pcKey){
    if(!psCheckNode) return NULL;
    else{
      while(psCheckNode!= NULL){
-       if(strcmp(psCheckNode->pcKey,pcKey)==0) return (void*) psCheckNode->pvValue;
+       if(strcmp(psCheckNode->pcKey,pcKey)==0) 
+        return (void*) psCheckNode->pvValue;
        else psCheckNode = psCheckNode->psNextNode;   
      }
    }
@@ -186,7 +188,8 @@ int SymTable_contains(SymTable_T oSymTable, const char *pcKey){
 
 /*--------------------------------------------------------------------*/
 
-void *SymTable_replace(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
+void *SymTable_replace(SymTable_T oSymTable, const char *pcKey,
+ const void *pvValue){
    struct LinkedListNode *psCheckNode;
    const void* pvTempValue;
    
@@ -223,7 +226,8 @@ void SymTable_map(SymTable_T oSymTable,
    for (psCurrentNode = oSymTable->psFirstNode;
         psCurrentNode != NULL;
         psCurrentNode = psCurrentNode->psNextNode)
-    (*pfApply)(psCurrentNode->pcKey, (void*)psCurrentNode->pvValue, (void*)pvExtra);
+    (*pfApply)(psCurrentNode->pcKey, (void*)psCurrentNode->pvValue, 
+      (void*)pvExtra);
   
 }
 
