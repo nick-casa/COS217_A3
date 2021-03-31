@@ -11,7 +11,9 @@
 #include "symtable.h"
 #endif
 
+/* bucketSizes holds the size of permittable hash tables */
 static const size_t bucketSizes[8] = { 509, 1021, 2039, 4093, 8191, 16381, 32749, 65521 }; 
+/* MAX_BUCKET_INDEX holds the index of the largest bucket size */
 static const size_t MAX_BUCKET_INDEX = 7; 
 
 /*--------------------------------------------------------------------*/
@@ -83,6 +85,9 @@ static int SymTable_putMap(const char *pcKey, void *pvValue,
    size_t hashValue;
    struct LinkedListNode *psLastFirst, *psNewNode, *psTempNode;
    char *pcKeyCopy;
+
+   assert(pcKey != NULL);
+   assert(pvHashTable != NULL);
 
    hashValue = SymTable_hash(pcKey,bucketSizes[ubucketIndex]);
    
@@ -336,18 +341,20 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
    assert(pcKey != NULL);
 
    hashValue = SymTable_hash(pcKey,bucketSizes[oSymTable->stBucketIndex]);
-   
+   /* If there is a node on the symbol table */
    if(oSymTable->psFirstNode[hashValue]){
         psTempNode = oSymTable->psFirstNode[hashValue];
         psLastNode = psTempNode;
    }
    else return NULL;
-
-   
+   /* Loop through all nodes */
    while(psTempNode){
+      /* If the search target is hit */
      if(strcmp(psTempNode->pcKey,pcKey) == 0){
+        /* Check if node has a next node */
         if(psTempNode->psNextNode){
           pvValue = psTempNode->pvValue;
+          /* if temp node is the first in the linked list */
           if(oSymTable->psFirstNode[hashValue] == psTempNode)
                 oSymTable->psFirstNode[hashValue] = psTempNode->psNextNode;
           else psLastNode->psNextNode = psTempNode->psNextNode;
@@ -356,11 +363,15 @@ void *SymTable_remove(SymTable_T oSymTable, const char *pcKey){
           oSymTable->stBindings--;
           return pvValue;
         }
+        /* Else, it is first node of an otherwise enpty list or
+        /* it is the end of the list  */
         else{
           pvValue = psTempNode->pvValue;
           psTempNode->pvValue = NULL;
+          /* if temp node is the first in the linked list */
           if(oSymTable->psFirstNode[hashValue] == psTempNode) 
                 oSymTable->psFirstNode[hashValue] = NULL;
+          /* else it is end of list */
           else psLastNode->psNextNode = NULL;
           free((char*)psTempNode->pcKey);
           free(psTempNode);
