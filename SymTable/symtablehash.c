@@ -55,6 +55,10 @@ struct SymTable{
 
 
 /*--------------------------------------------------------------------*/
+
+/* SymTable_newHash takes in one parameter, size, representing the    */
+/* size of the hash table and returns the pointer to an array of      */
+/* allocated memory for LinkedListNodes.                              */
 static struct LinkedListNode** SymTable_newHash(size_t size){
    struct LinkedListNode** oHashTable;
    
@@ -65,7 +69,14 @@ static struct LinkedListNode** SymTable_newHash(size_t size){
    }
    return oHashTable;
 }
+
 /*--------------------------------------------------------------------*/
+/* SymTable_putMap takes in four parameters, pcKey, pvValue,          */  
+/* pvHashTable, and ubucketIndex, representing the key-value pair,    */ 
+/* the hash table its being entered into, and the index of the bucket */  
+/* size of the hash table respectively. Then it puts the key-value    */  
+/* pair in pvHashTable and returns 1 if successful. Otherwise,        */ 
+/* returns 0.                                                         */ 
 static int SymTable_putMap(const char *pcKey, void *pvValue, 
         struct LinkedListNode **pvHashTable, size_t ubucketIndex){
    
@@ -101,8 +112,11 @@ static int SymTable_putMap(const char *pcKey, void *pvValue,
    
    return 1;
 }
-/*--------------------------------------------------------------------*/
 
+/*--------------------------------------------------------------------*/
+/* SymTable_grow takes in a SymTable_T, oSymTable, and resizes        */  
+/* its underlying hash table to the next size in bucketSizes. Then,   */
+/* it rehashes all of the values.                                     */
 static void SymTable_grow(SymTable_T oSymTable){
    struct LinkedListNode **oldHashTable,**newHashTable;
    struct LinkedListNode *psNextLink, *psCurrentLink;
