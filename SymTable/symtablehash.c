@@ -54,60 +54,53 @@ struct SymTable{
 
 
 /*--------------------------------------------------------------------*/
-static SymTable_T SymTable_larger(size_t size, size_t bucketIndex){
-   SymTable_T oSymTableN;
-   oSymTableN = (SymTable_T)malloc(sizeof(struct SymTable));
-
-   if (oSymTable == NULL) return NULL;
-        
-   oSymTableN->psFirstNode = calloc(size,sizeof(struct LinkedListNode*));
-   if(oSymTableN->psFirstNode == NULL){
-        free(oSymTable);
+static struct LinkedListNode** newHash(size_t size){
+   struct LinkedListNode** oHashTable;
+   
+   oHashTable = calloc(size,sizeof(struct LinkedListNode*));
+   if(oHashTable == NULL){
+        free(oHashTable);
         return NULL;
    }
-   oSymTableN->stBindings = 0;
-   oSymTableN->stBucketIndex = bucketIndex;
    
-   return oSymTableN;
+   return oHashTable;
 }
 /*--------------------------------------------------------------------*/
 static void putMap(const char *pcKey, void *pvValue, void *pvExtra){
-   SymTable_put(pvExtra, pcKey, (const void*)pvValue);
+   
 }
 /*--------------------------------------------------------------------*/
 
 static void SymTable_grow(SymTable_T oSymTable){
    SymTable_T newSymTable;
-   struct LinkedListNode **oldHashTable;
+   struct LinkedListNode **oldHashTable,**newHashTable;
    struct LinkedListNode *psNextLink, *psCurrentLink;
-   size_t newSize, i;
+   size_t oldSize, newSize, i;
 
    assert(oSymTable != NULL);
 
-   newSize = oSymTable->stBucketIndex;
-   newSize++;
-   newSymTable = SymTable_larger(bucketSizes[newSize], newSize);
-   newSize--;
-   if(newSymTable != NULL){
-        SymTable_map(oSymTable, putMap, newSymTable);
-        oSymTable->stBucketIndex = newSize;
-        oldHashTable = oSymTable->psFirstNode;
-        oSymTable->psFirstNode = newSymTable->psFirstNode;
-        
-        SymTable_free(newSymTable);
-        
-        for(i=0;i<bucketSizes[--newSize];i++){
-             psCurrentLink = oldHashTable[i];
-             while(psCurrentLink != NULL){
-                  psNextLink = psCurrentLink->psNextNode;
-                  free((char*)psCurrentLink->pcKey);
-                  free(psCurrentLink);
-                  psCurrentLink = psNextLink;
-             }
+   oldSize = oSymTable->stBucketIndex;
+   newSize = oldSize+1;
+   newHashTable = newHash(bucketSizes[newSize]);
+
+   oldHashTable = oSymTable->psFirstNode;
+   oSymTable->stBucketIndex++;
+   for(i=0;i<bucketSizes[oldSize];i++){
+        psCurrentLink = oldHashTable[i];
+        while(psCurrentLink != NULL){
+                psNextLink = psCurrentLink->psNextNode;
+                free((char*)psCurrentLink->pcKey);
+                free(psCurrentLink);
+                psCurrentLink = NULL;
+                psCurrentLink = psNextLink;
         }
-        free(oldHashTable);    
    }
+
+   printf("%zu\n",  oSymTable->stBucketIndex);
+   free(oldHashTable);
+
 }
+
 /*--------------------------------------------------------------------*/
 
 SymTable_T SymTable_new(void){
