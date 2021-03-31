@@ -126,8 +126,8 @@ static void SymTable_grow(SymTable_T oSymTable){
                    free(psCurrentLink);
                    psCurrentLink = psNextLink;
            }
-           free(psCurrentLink);
       }
+      free(oSymTable->psFirstNode);
       oSymTable->psFirstNode = newHashTable;
       oSymTable->stBucketIndex = newSize;
    }
