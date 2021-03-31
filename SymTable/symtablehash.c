@@ -55,20 +55,20 @@ struct SymTable{
 
 /*--------------------------------------------------------------------*/
 static SymTable_T SymTable_larger(size_t size, size_t bucketIndex){
-   SymTable_T oSymTable;
-   oSymTable = (SymTable_T)malloc(sizeof(struct SymTable));
+   SymTable_T oSymTableN;
+   oSymTableN = (SymTable_T)malloc(sizeof(struct SymTable));
 
    if (oSymTable == NULL) return NULL;
         
-   oSymTable->psFirstNode = calloc(size,sizeof(struct LinkedListNode*));
-   if(oSymTable->psFirstNode == NULL){
+   oSymTableN->psFirstNode = calloc(size,sizeof(struct LinkedListNode*));
+   if(oSymTableN->psFirstNode == NULL){
         free(oSymTable);
         return NULL;
    }
-   oSymTable->stBindings = 0;
-   oSymTable->stBucketIndex = bucketIndex;
+   oSymTableN->stBindings = 0;
+   oSymTableN->stBucketIndex = bucketIndex;
    
-   return oSymTable;
+   return oSymTableN;
 }
 /*--------------------------------------------------------------------*/
 static void putMap(const char *pcKey, void *pvValue, void *pvExtra){
@@ -107,8 +107,6 @@ static void SymTable_grow(SymTable_T oSymTable){
         }
         free(oldHashTable);    
    }
-
-   
 }
 /*--------------------------------------------------------------------*/
 
