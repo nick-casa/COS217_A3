@@ -62,7 +62,6 @@ static struct LinkedListNode** newHash(size_t size){
         free(oHashTable);
         return NULL;
    }
-   
    return oHashTable;
 }
 /*--------------------------------------------------------------------*/
@@ -93,7 +92,7 @@ static int putMap(const char *pcKey, void *pvValue,
     free(pcKeyCopy);
     return 0;
    }
-   
+
    psNewNode->pcKey = pcKeyCopy;
    psNewNode->pvValue = pvValue;
    psLastFirst = pvHashTable[hashValue];
@@ -105,7 +104,6 @@ static int putMap(const char *pcKey, void *pvValue,
 /*--------------------------------------------------------------------*/
 
 static void SymTable_grow(SymTable_T oSymTable){
-   SymTable_T newSymTable;
    struct LinkedListNode **oldHashTable,**newHashTable;
    struct LinkedListNode *psNextLink, *psCurrentLink;
    size_t oldSize, newSize, i;
@@ -118,8 +116,7 @@ static void SymTable_grow(SymTable_T oSymTable){
    newHashTable = newHash(bucketSizes[newSize]);
 
    oldHashTable = oSymTable->psFirstNode;
-   oSymTable->stBucketIndex++;
-   for(i=0;i<bucketSizes[oldSize];i++){
+    for(i=0;i<bucketSizes[oldSize];i++){
         psCurrentLink = oldHashTable[i];
         while(psCurrentLink != NULL){
                 psNextLink = psCurrentLink->psNextNode;
@@ -132,8 +129,9 @@ static void SymTable_grow(SymTable_T oSymTable){
                 psCurrentLink = psNextLink;
         }
    }
-   free(oldHashTable);
+   free(oSymTable->psFirstNode);
    oSymTable->psFirstNode = newHashTable;
+   oSymTable->stBucketIndex = newSize;
 
 }
 
