@@ -11,7 +11,8 @@
 #include "symtable.h"
 #endif
 
-static size_t bucketSizes[8] = { 509, 1021, 2039, 4093, 8191, 16381, 32749, 65521 }; 
+static const size_t bucketSizes[8] = { 509, 1021, 2039, 4093, 8191, 16381, 32749, 65521 }; 
+static const size_t MAX_BUCKET_INDEX = 7; 
 
 /*--------------------------------------------------------------------*/
 
@@ -76,7 +77,7 @@ static int putMap(const char *pcKey, void *pvValue,
    
    if(pvHashTable[hashValue]) psTempNode = pvHashTable[hashValue];
    else psTempNode = NULL;
-   
+
    while(psTempNode){
         if(strcmp(psTempNode->pcKey,pcKey) == 0) return 0;
         else psTempNode = psTempNode->psNextNode;
@@ -192,7 +193,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
    assert(pcKey != NULL);
    
    if(oSymTable->stBindings+1>bucketSizes[oSymTable->stBucketIndex]&&
-        oSymTable->stBindings+1<bucketSizes[7]){
+        oSymTable->stBindings+1<bucketSizes[MAX_BUCKET_INDEX]){
         SymTable_grow(oSymTable);
    }
    
