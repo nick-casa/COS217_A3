@@ -69,15 +69,14 @@ static int putMap(const char *pcKey, const void *pvValue,
         struct LinkedListNode **pvHashTable, size_t ubucketIndex){
    
    size_t hashValue;
-   struct LinkedListNode *psTempNode;
-   struct LinkedListNode *psLastFirst, *psNewNode;
+   struct LinkedListNode *psLastFirst, *psNewNode, *psTempNode;
    char *pcKeyCopy;
 
    hashValue = SymTable_hash(pcKey,bucketSizes[ubucketIndex]);
    
-   if(pvHashTable[hashValue])
-        psTempNode = pvHashTable[hashValue];
+   if(pvHashTable[hashValue]) psTempNode = pvHashTable[hashValue];
    else return 0;
+   
    while(psTempNode){
         if(strcmp(psTempNode->pcKey,pcKey) == 0) return 0;
         else psTempNode = psTempNode->psNextNode;
@@ -114,24 +113,23 @@ static void SymTable_grow(SymTable_T oSymTable){
    oldSize = oSymTable->stBucketIndex;
    newSize = oldSize+1;
    newHashTable = newHash(bucketSizes[newSize]);
-
-   oldHashTable = oSymTable->psFirstNode;
-    for(i=0;i<bucketSizes[oldSize];i++){
-        psCurrentLink = oldHashTable[i];
-        while(psCurrentLink != NULL){
-                psNextLink = psCurrentLink->psNextNode;
-                putMap(psCurrentLink->pcKey, 
-                       psCurrentLink->pvValue, 
-                       newHashTable, newSize);
-                free((char*)psCurrentLink->pcKey);
-                free(psCurrentLink);
-                psCurrentLink = NULL;
-                psCurrentLink = psNextLink;
-        }
+   if(newHashTable != NULL){
+      oldHashTable = oSymTable->psFirstNode;
+      for(i=0;i<bucketSizes[oldSize];i++){
+           psCurrentLink = oldHashTable[i];
+           while(psCurrentLink != NULL){
+                   psNextLink = psCurrentLink->psNextNode;
+                   putMap(psCurrentLink->pcKey, 
+                          psCurrentLink->pvValue, 
+                          newHashTable, newSize);
+                   free((char*)psCurrentLink->pcKey);
+                   free(psCurrentLink);
+                   psCurrentLink = psNextLink;
+           }
+      }
+      oSymTable->psFirstNode = newHashTable;
+      oSymTable->stBucketIndex = newSize;
    }
-   free(oSymTable->psFirstNode);
-   oSymTable->psFirstNode = newHashTable;
-   oSymTable->stBucketIndex = newSize;
 
 }
 
