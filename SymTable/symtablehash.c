@@ -76,7 +76,7 @@ static int putMap(const char *pcKey, const void *pvValue,
    
    if(pvHashTable[hashValue]) psTempNode = pvHashTable[hashValue];
    else return 0;
-   
+
    while(psTempNode){
         if(strcmp(psTempNode->pcKey,pcKey) == 0) return 0;
         else psTempNode = psTempNode->psNextNode;
@@ -126,6 +126,7 @@ static void SymTable_grow(SymTable_T oSymTable){
                    free(psCurrentLink);
                    psCurrentLink = psNextLink;
            }
+           free(psCurrentLink);
       }
       oSymTable->psFirstNode = newHashTable;
       oSymTable->stBucketIndex = newSize;
