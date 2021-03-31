@@ -65,7 +65,7 @@ static struct LinkedListNode** newHash(size_t size){
    return oHashTable;
 }
 /*--------------------------------------------------------------------*/
-static int putMap(const char *pcKey, void *pvValue, 
+static int putMap(const char *pcKey, const void *pvValue, 
         struct LinkedListNode **pvHashTable, size_t ubucketIndex){
    
    size_t hashValue;
@@ -121,7 +121,7 @@ static void SymTable_grow(SymTable_T oSymTable){
         while(psCurrentLink != NULL){
                 psNextLink = psCurrentLink->psNextNode;
                 putMap(psCurrentLink->pcKey, 
-                       (void*)psCurrentLink->pvValue, 
+                       psCurrentLink->pvValue, 
                        newHashTable, newSize);
                 free((char*)psCurrentLink->pcKey);
                 free(psCurrentLink);
