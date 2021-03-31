@@ -215,6 +215,7 @@ int SymTable_put(SymTable_T oSymTable, const char *pcKey, const void *pvValue){
         oSymTable->stBindings+1<bucketSizes[MAX_BUCKET_INDEX]){
         SymTable_grow(oSymTable);
    }
+
    
    hashValue = SymTable_hash(pcKey,bucketSizes[oSymTable->stBucketIndex]);
    
